@@ -1,18 +1,18 @@
-# wiki
+# Docsの書き方
 
-## かきかた
+## 形式
 
-rst, mdどっちでもいける
+rst, mdどっちでもいける。個人的にはmdの方が人間向きだと思うのでMarkdownを使っている。Obsidianから見えるのもでかい。
 
-## こんぱいる
+## コンパイル方法
 
 cd ..
 make build
 
 ## 設定
 
-conf.pyをいじる
+conf.pyをいじる。テーマの設定とか拡張とか。
 
 ## デプロイ
 
-CIでかってにやる
+Mainにpushすると自動でGitHub Actionsが回ってpagesにデプロイされる。
