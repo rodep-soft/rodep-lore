@@ -16,6 +16,8 @@ sphinxを導入しており、mainにpushするとGitHub ActionsのCIが回っ�
 - ブランチは必ず切ってPRを出すこと
 - 基本的に一人で勝手にMergeしないこと
 
+`./docs/source/*`に新しくディレクトリ/ファイルを作成して書いていく.
+
 ## Docsの書式
 
 myst-parser入れてるのでMarkdownで書ける.
@@ -33,8 +35,17 @@ composeで立ち上げてやれば`http://localhost:8080`でアクセスでき�
 docsを上書きしたら自動でビルドされるはず.
 
 ```bash
+# Dockerの動作確認
+$ docker version
+$ docker compose version
+
+# ビルドと立ち上げ(repoのrootディレクトリで実行)
 $ docker compose build
 $ docker compose up -d
+
+# バグったときは
+$ docker compose logs
+# なるべくissueにバグは上げること
 ```
 ### Option2. uvを使う
 
