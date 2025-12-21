@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'RodepWiki'
+project = 'Wiki'
 copyright = '2025, Tatsuki Yano'
 author = 'Tatsuki Yano'
 
@@ -30,6 +30,8 @@ language = 'ja'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+html_title = "Wiki"
 
 #html_theme = 'alabaster'
 html_theme = "furo"
