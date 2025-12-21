@@ -9,6 +9,12 @@
 
 sphinxを導入しており、mainにpushするとGitHub ActionsのCIが回って自動でデプロイされる仕組みになっています.
 
+[page](https://rodep-soft.github.io/rodep-lore/)
+
+## 作業時の注意
+
+- ブランチは必ず切ってPRを出すこと
+- 基本的に一人で勝手にMergeしないこと
 
 ## Docsの書式
 
