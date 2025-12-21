@@ -452,7 +452,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "furo", specifier = ">=2025.12.19" },
-    { name = "myst-parser", specifier = ">=4.0.1" },
+    { name = "myst-parser", extras = ["extensions"], specifier = ">=4.0.1" },
     { name = "sphinx", specifier = ">=6,<8" },
     { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
     { name = "sphinx-rtd-theme", specifier = ">=0.5.1" },

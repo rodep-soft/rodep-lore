@@ -18,7 +18,7 @@ extensions = [
 ]
 
 myst_enable_extensions = [
-    "colcon_fence",
+    #"colcon_fence",
     "deflist",
     "tasklist",
 ]
