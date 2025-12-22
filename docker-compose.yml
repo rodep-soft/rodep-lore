@@ -2,10 +2,19 @@ services:
   sphinx:
     build: .
     working_dir: /docs
+
+    # bind mount
     volumes:
       - ./docs:/docs
+
+    # firewalld/iptables等に注意
+    # hostでListenしてるか見る
+    # $ sudo ss -plunt | grep 8080
+    #
     ports:
       - "8080:8080"
+
+    # この書き方が安定かも
     command:
       - sphinx-autobuild
       - source
