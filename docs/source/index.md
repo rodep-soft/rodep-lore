@@ -16,5 +16,13 @@ programming/languages
 :maxdepth: 1
 :caption: CLI:
 
-linux/intro_to_cli
+linux/cli/intro_to_cli
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Docker:
+
+docker/intro_to_docker
+docker/intro_to_compose
 ```

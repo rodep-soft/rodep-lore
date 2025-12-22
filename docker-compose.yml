@@ -1,11 +1,11 @@
 services:
   sphinx:
     build: .
-    working_dir: /docs
+    working_dir: /app
 
     # bind mount
     volumes:
-      - ./docs:/docs
+      - ./:/app
 
     # firewalld/iptables等に注意
     # hostでListenしてるか見る
@@ -16,9 +16,11 @@ services:
 
     # この書き方が安定かも
     command:
+      - uv
+      - run
       - sphinx-autobuild
-      - source
-      - build/html
+      - docs/source
+      - docs/build/html
       - --host
       - 0.0.0.0
       - --port

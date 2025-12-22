@@ -1,11 +1,11 @@
-FROM python:3.11-slim
+FROM astral/uv:python3.12-bookworm-slim
 
-WORKDIR /docs
+WORKDIR /app
 
-RUN pip install --no-cache-dir \
-  sphinx \
-  sphinx-autobuild \
-  myst-parser \
-  furo
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+COPY . .
 
 CMD ["bash"]
