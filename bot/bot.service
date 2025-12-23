@@ -4,11 +4,14 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-Type=simple
+#Type=oneshot
+Type=simple # restartを使うため
+
 WorkingDirectory=/home/rodep/rodep-lore
-# 上記のスクリプトを叩く
-ExecStart=/bin/bash scripts/startup.sh
-# Botコンテナが止まったら再起動をかける（スクリプトごとやり直す）
+
+# dockerコンテナを立ち上げる
+ExecStart=/bin/bash bot/startup.sh
+
 Restart=always
 RestartSec=30
 User=rodep
