@@ -1,0 +1,23 @@
+[Unit]
+Description=PythonDiscordNotificationAutomator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=rodep
+Group=rodep
+
+WorkingDirectory=/home/rodep/arduino/
+
+EnvironmentFile=/home/rodep/arduino/.env
+
+ExecStartPre=/usr/bin/bash -c 'source /home/rodep/.profile || true; /home/rodep/.local/bin/pio run -t upload && sleep 5'
+
+ExecStart=/usr/bin/python3 /home/rodep/arduino/a.py
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
