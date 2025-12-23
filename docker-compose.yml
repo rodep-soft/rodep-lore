@@ -1,4 +1,6 @@
 services:
+  # これは必要なときだけ手動ビルド
+  profiles: ["tools"]
   sphinx:
     build:
       context: .
@@ -9,6 +11,8 @@ services:
     # bind mount
     volumes:
       - ./:/app
+      # コンテナ内の.venv消える？
+      # これはやばい可能性がある
       - /app/.venv
 
     # firewalld/iptables等に注意
@@ -68,13 +72,15 @@ services:
     tty: true
     privileged: true
     network_mode: host
-    restart: always
+    # systemdに管理を任せる
+    restart: no
     command:
       - uv
       - run
       - bot/bot.py
 
 
+  # simは常駐で動かす
   simulator:
     build:
       context: .
@@ -89,6 +95,9 @@ services:
     #network_mode: host
     ports:
       - "8501:8501"
+
+    # メンテナンス時以外は自動復旧
+    restart: unless-stopped
 
     command:
       - uv
