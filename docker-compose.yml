@@ -73,6 +73,6 @@ services:
       - run
       - streamlit
       - run
-      - scripts/control/controller.py
+      - scripts/control/simple_pid_simulator.py
       - --server.address
       - "0.0.0.0"
