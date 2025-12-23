@@ -9,6 +9,7 @@ services:
     # bind mount
     volumes:
       - ./:/app
+      - /app/.venv
 
     # firewalld/iptables等に注意
     # hostでListenしてるか見る
@@ -37,6 +38,7 @@ services:
 
     volumes:
       - ./:/app
+      - /app/.venv
 
     tty: true
     privileged: true
