@@ -1,23 +1,17 @@
 [Unit]
-Description=PythonDiscordNotificationAutomator
-After=network-online.target
-Wants=network-online.target
+Description=Rodep Bot with Auto-Upload
+After=docker.service
+Requires=docker.service
 
 [Service]
-User=rodep
-Group=rodep
-
-WorkingDirectory=/home/rodep/arduino/
-
-EnvironmentFile=/home/rodep/arduino/.env
-
-ExecStartPre=/usr/bin/bash -c 'source /home/rodep/.profile || true; /home/rodep/.local/bin/pio run -t upload && sleep 5'
-
-ExecStart=/usr/bin/python3 /home/rodep/arduino/a.py
-
+Type=simple
+WorkingDirectory=/home/rodep/rodep-lore
+# 上記のスクリプトを叩く
+ExecStart=/bin/bash scripts/startup.sh
+# Botコンテナが止まったら再起動をかける（スクリプトごとやり直す）
 Restart=always
-RestartSec=5
+RestartSec=30
+User=rodep
 
 [Install]
 WantedBy=multi-user.target
-

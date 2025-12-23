@@ -31,6 +31,7 @@ services:
       - "8080"
 
   pio:
+    profiles: ["setup"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -51,7 +52,28 @@ services:
       - -d
       - bot
       - -t
-      - upload 
+      - upload
+
+  bot:
+    profiles: ["setup"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+
+    volumes:
+      - ./:/app
+      - /app/.venv
+
+    tty: true
+    privileged: true
+    network_mode: host
+    restart: always
+    command:
+      - uv
+      - run
+      - bot/bot.py
+
 
   simulator:
     build:
