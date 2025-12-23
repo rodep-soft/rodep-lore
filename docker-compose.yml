@@ -52,3 +52,27 @@ services:
       - bot
       - -t
       - upload 
+
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+
+
+    volumes:
+      - ./:/app
+      - /app/.venv
+
+    #network_mode: host
+    ports:
+      - "8501:8501"
+
+    command:
+      - uv
+      - run
+      - streamlit
+      - run
+      - scripts/control/controller.py
+      - --server.address
+      - "0.0.0.0"

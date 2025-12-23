@@ -1287,7 +1287,6 @@ dependencies = [
     { name = "myst-parser" },
     { name = "numpy" },
     { name = "platformio" },
-    { name = "slycot" },
     { name = "sphinx" },
     { name = "sphinx-autobuild" },
     { name = "sphinx-rtd-theme" },
@@ -1302,7 +1301,6 @@ requires-dist = [
     { name = "myst-parser", extras = ["extensions"], specifier = ">=4.0.1" },
     { name = "numpy", specifier = ">=2.4.0" },
     { name = "platformio", specifier = ">=6.1.18" },
-    { name = "slycot", specifier = ">=0.6.1" },
     { name = "sphinx", specifier = ">=6,<8" },
     { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
     { name = "sphinx-rtd-theme", specifier = ">=0.5.1" },
@@ -1505,15 +1503,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
-
-[[package]]
-name = "slycot"
-version = "0.6.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6e/2e/adcd8af942ff732ebd7b8f247d9a2623cbefe3c232f6db93e7ee1bab16b3/slycot-0.6.1.tar.gz", hash = "sha256:0ef1c71a16d4703797fd3955b6908c7df0c0079a06940ade96ede28c7b5520b0", size = 3081433, upload-time = "2025-11-16T11:07:43.643Z" }
 
 [[package]]
 name = "smmap"
