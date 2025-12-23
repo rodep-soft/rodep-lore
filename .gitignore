@@ -2,6 +2,9 @@
 
 docs/build
 
+bot/.env
+bot/.pio/
+
 __pycache__/
 .pytest_cache/
 .ruff_cache/
