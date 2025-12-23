@@ -72,6 +72,11 @@ $ uv sync
 
 Dockerfileを参考に入れてみると多分うまくいく
 
+## その他注意
+
+Docker Composeは`docker compose up`で一気に立ち上げない.
+Makefile経由で`make up-*`でコンテナを立ち上げることを推奨
+
 
 #### Author
 
