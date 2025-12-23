@@ -1,7 +1,8 @@
 services:
-  # これは必要なときだけ手動ビルド
-  profiles: ["tools"]
   sphinx:
+    # これは必要なときだけ手動ビルド
+    profiles:
+      - tools
     build:
       context: .
       # Dockerfileは共通化
@@ -35,7 +36,8 @@ services:
       - "8080"
 
   pio:
-    profiles: ["setup"]
+    profiles:
+      - setup
     build:
       context: .
       dockerfile: Dockerfile
@@ -59,7 +61,8 @@ services:
       - upload
 
   bot:
-    profiles: ["setup"]
+    profiles:
+      - setup
     build:
       context: .
       dockerfile: Dockerfile

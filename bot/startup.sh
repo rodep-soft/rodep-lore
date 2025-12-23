@@ -2,6 +2,8 @@
 # -e: エラーが出たら即終了（PIO失敗時にBotを動かさないため）
 set -e
 
+cd "$(dirname "$0")/.."
+
 echo "=== Room Server Startup Sequence ==="
 
 # 1. 既存の古いコンテナを一旦掃除（ポート競合回避）
