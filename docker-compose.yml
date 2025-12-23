@@ -49,7 +49,7 @@ services:
 
     tty: true
     privileged: true
-
+    network_mode: host
     command:
       - uv
       - run

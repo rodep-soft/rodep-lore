@@ -22,12 +22,13 @@ sleep 2
 # 4. 常駐Botの起動
 # systemdで管理する場合は run、バックグラウンドにするなら up -d
 echo "Step 2: Starting Discord Monitoring Bot..."
-docker compose run -d --rm bot
+#docker compose run -d --rm bot
+docker compose --profile setup up -d bot simulator
 
 # 5. シミュレーターとドキュメントサーバーの起動
 # simulatorにはprofilesがないので、up -d でまとめて起動
 echo "Step 3: Starting Streamlit Simulator..."
-docker compose up -d simulator
+# docker compose up -d simulator
 
 echo "=== All services are up! ==="
 
