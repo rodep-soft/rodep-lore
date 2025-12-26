@@ -1,0 +1,20 @@
+[Unit]
+Description=Build and Run Heater E-Stop
+After=network.target
+
+[Service]
+User=rodep
+Group=uucp
+WorkingDirectory=/home/rodep/rodep-lore
+# PATHにuvがある場所を追加しておく
+Environment="PATH=/home/rodep/.local/bin:/usr/local/bin:/usr/bin:/bin"
+
+# フルパスで指定
+ExecStartPre=/home/rodep/.local/bin/uv run pio run -d estop_heater -t upload
+ExecStart=/home/rodep/.local/bin/uv run python estop_heater/send_command.py
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
