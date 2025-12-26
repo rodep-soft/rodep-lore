@@ -10,12 +10,12 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Start program"); 
 
-  servo.attach(servo_pin);
-  servo.write(0);
+  //servo.attach(servo_pin);
+  //servo.write(0);
 
-  if (!servo.attached()) {
-    Serial.println("Servo not attached!");
-  }
+  //if (!servo.attached()) {
+  //  Serial.println("Servo not attached!");
+  //}
 }
 
 void loop() {
@@ -27,10 +27,12 @@ void loop() {
     Serial.println("I received:");
 
     if (incomingByte == '1') {
+      servo.attach(servo_pin);
+      delay(100);
       servo.write(114);
       delay(1000);
       servo.write(150);
-      delay(3000);
+      delay(500);
       servo.detach();
     }
   }
