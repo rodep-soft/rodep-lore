@@ -46,6 +46,9 @@ services:
     volumes:
       - ./:/app
       - /app/.venv
+      - /dev/bus/usb:/dev/bus/usb
+      - pio_cache:/root/.platformio
+      - uv_cache:/root/.cache/uv
 
     tty: true
     privileged: true
@@ -110,3 +113,8 @@ services:
       - scripts/control/simple_pid_simulator.py
       - --server.address
       - "0.0.0.0"
+
+
+volumes:
+  pio_cache:
+  uv_cache:
