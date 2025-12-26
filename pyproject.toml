@@ -13,6 +13,7 @@ dependencies = [
     "numpy>=2.4.0",
     "platformio>=6.1.18",
     "pyserial>=3.5",
+    "python-dotenv>=1.2.1",
     "sphinx>=6,<8",
     "sphinx-autobuild>=2025.8.25",
     "sphinx-rtd-theme>=0.5.1",

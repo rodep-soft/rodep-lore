@@ -14,7 +14,12 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
-SERIAL_PORT = "/dev/ttyACM0"
+SERIAL_PORT = "/dev/doorduino"
+REAL_PORT = os.path.realpath(SERIAL_PORT)
+
+print(f"Connecting to: {REAL_PORT} (via {SERIAL_PORT})")
+
+
 BAUD_RATE = 9600
 THRESHOLD = 18.0
 NOTIFICATION_COOLDOWN = 12 * 60 * 60  # 12時間

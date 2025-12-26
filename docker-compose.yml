@@ -74,6 +74,10 @@ services:
     volumes:
       - ./:/app
       - /app/.venv
+      - /dev:/dev
+  
+        #devices:
+        #- "/dev/doorduino:/dev/doorduino"
 
     tty: true
     privileged: true
