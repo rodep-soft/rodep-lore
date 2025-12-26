@@ -28,6 +28,10 @@ void loop() {
 
     if (incomingByte == '1') {
       servo.write(114);
+      delay(1000);
+      servo.write(150);
+      delay(3000);
+      servo.detach();
     }
   }
   delay(20);
