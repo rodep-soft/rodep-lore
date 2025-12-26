@@ -26,7 +26,7 @@ void loop() {
     Serial.println("I received:");
     Serial.println(incomingByte, DEC);
 
-    if (DEC == 1) {
+    if (DEC == '1') {
       servo.write(90);
     }
   }
