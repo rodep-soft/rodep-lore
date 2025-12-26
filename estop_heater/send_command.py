@@ -2,8 +2,8 @@ from datetime import datetime
 import serial
 import time
 
-GOHOME_HOUR = 21
-GOHOME_MINUTE = 50
+GOHOME_HOUR = 18
+GOHOME_MINUTE = 42
 
 # Serial接続
 ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)

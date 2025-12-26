@@ -10,12 +10,6 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Start program"); 
 
-  //servo.attach(servo_pin);
-  //servo.write(0);
-
-  //if (!servo.attached()) {
-  //  Serial.println("Servo not attached!");
-  //}
 }
 
 void loop() {
