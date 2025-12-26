@@ -1,10 +1,11 @@
 import serial
+import time
 
 # Serial接続
 ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
-
+time.sleep(3)
 # send command
-ser.write(1)
+ser.write(b'1')
 
 
 
