@@ -33,4 +33,4 @@ echo "Step 3: Starting Streamlit Simulator..."
 echo "=== All services are up! ==="
 
 # ログを流す
-docker compose logs -f bot
+# docker compose logs -f bot

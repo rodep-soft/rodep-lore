@@ -4,16 +4,17 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-#Type=oneshot
-Type=simple # restartを使うため
-
+Type=oneshot
+RemainAfterExit=yes
 WorkingDirectory=/home/rodep/rodep-lore
 
-# dockerコンテナを立ち上げる
+# 起動時は startup.sh を叩く（ビルド・書き込み・upまでやってくれる）
+# startup.sh の最後の "docker compose logs -f" は消しておいたほうが無難です
 ExecStart=/bin/bash bot/startup.sh
 
-Restart=always
-RestartSec=30
+# 停止時はしっかりコンテナを落とす
+ExecStop=/usr/bin/docker compose down
+
 User=rodep
 
 [Install]
