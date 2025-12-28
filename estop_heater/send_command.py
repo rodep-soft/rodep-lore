@@ -1,6 +1,7 @@
 from datetime import datetime
 import serial
 import time
+import zenoh
 
 GOHOME_HOUR = 18
 GOHOME_MINUTE = 56
@@ -11,6 +12,21 @@ time.sleep(2)
 
 # その日中に実行されたかどうかのフラグ
 done_today = False
+
+# Zenohネットワークに接続する
+z = zenoh.open()
+sub = z.declare_subscriber("heater/command", callback)
+
+def callback(sample):
+    cmd = sample.payload.decode()
+    print(f"コマンド: {cmd}")
+
+    if cmd == "ACTIVATE":
+        ser.write(b'1')
+        print("ヒーターをOFFにします")
+        print("手動で実行されました")
+
+
 
 while True:
     now = datetime.now()
