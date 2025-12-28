@@ -11,3 +11,8 @@ up-pio:
 
 up-sim:
 	docker compose up -d simulator
+
+# 未使用のネットワークを全削除
+prune-network:
+	docker network prune -f
+

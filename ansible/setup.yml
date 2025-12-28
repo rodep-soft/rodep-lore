@@ -1,0 +1,14 @@
+---
+- name: 初めてのAnsibleテスト
+  hosts: all              # インベントリに書いてある全ホストが対象
+  become: yes            # sudo権限を使う（root作業）
+
+  tasks:
+    - name: 画面にメッセージを出す
+      debug:
+        msg: "SSH接続成功！Ubuntuを操作しています"
+
+    - name: テスト用のファイルを作成する
+      copy:
+        content: "Ansibleで作成されたファイルです\n"
+        dest: /tmp/ansible_test.txt

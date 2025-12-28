@@ -92,6 +92,8 @@ services:
 
   # simは常駐で動かす
   simulator:
+    profiles:
+      - sim
     build:
       context: .
       dockerfile: Dockerfile
@@ -117,6 +119,16 @@ services:
       - scripts/control/simple_pid_simulator.py
       - --server.address
       - "0.0.0.0"
+
+  # ansibleのテスト用
+  ansible-test:
+    profiles:
+      - test
+    build:
+      context: ./ansible
+      dockerfile: Dockerfile.test
+    ports:
+      - "2222:22"
 
 
 volumes:
