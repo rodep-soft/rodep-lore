@@ -68,3 +68,15 @@
   when: 
     - inventory_hostname == 'localhost'
     - docker_config.changed
+
+- name: DockerのストレージドライバーとDNSを設定 (テスト環境用)
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "storage-driver": "vfs",
+        "dns": ["8.8.8.8", "8.8.4.4"]
+        "build-network": "host"
+      }
+  when: inventory_hostname == 'localhost'
+  register: docker_config

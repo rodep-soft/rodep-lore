@@ -15,4 +15,6 @@
 
     - name: Dockerのseutp
       include_tasks: tasks/docker.yml
-    
+   
+    - name: Bot deployment
+      include_tasks: tasks/deploy_bot.yml
