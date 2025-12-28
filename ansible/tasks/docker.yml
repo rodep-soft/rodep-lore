@@ -51,3 +51,20 @@
     name: "{{ ansible_user_id }}"
     groups: docker
     append: yes
+
+- name: DockerのストレージドライバーをVFSに設定 (テスト環境用)
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "storage-driver": "vfs"
+      }
+  # localhost（テストコンテナ）の時だけ実行する
+  when: inventory_hostname == 'localhost'
+  register: docker_config
+
+- name: Dockerサービスを再起動 (設定変更時のみ)
+  ansible.builtin.shell: service docker restart
+  when: 
+    - inventory_hostname == 'localhost'
+    - docker_config.changed
