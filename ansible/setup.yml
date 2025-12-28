@@ -15,6 +15,11 @@
 
     - name: Dockerのseutp
       include_tasks: tasks/docker.yml
+    
+    - name: Configure udev for Arduino
+      ansible.builtin.include_tasks: tasks/udev_doorduino_setup.yml
    
     - name: Bot deployment
       include_tasks: tasks/deploy_bot.yml
+
+

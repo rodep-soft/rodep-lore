@@ -1,0 +1,38 @@
+
+- name: udevパッケージがインストールされていることを確認
+  become: yes
+  ansible.builtin.apt:
+    name: udev
+    state: present
+
+- name: udevのディレクトリが存在することを確認
+  become: yes
+  ansible.builtin.file:
+    path: /etc/udev/rules.d
+    state: directory
+    mode: '0755'
+
+- name: Arduinoのudevルールを配置
+  become: yes
+  ansible.builtin.copy:
+    src: ../bot/99-arduino-dfu.rules
+    dest: /etc/udev/rules.d/99-arduino-dfu.rules
+    mode: '0644'
+  register: udev_rules  # 設定変更を記録
+
+- name: udevルールを即時反映（handlersの代わりに直接実行）
+  become: yes
+  ansible.builtin.shell: |
+    udevadm control --reload-rules
+    udevadm trigger
+  # register した変数が changed の時だけ実行される
+  when: udev_rules.changed
+
+- name: ユーザーを必要なグループに追加
+  become: yes
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups:
+      - dialout
+      - plugdev
+    append: yes
