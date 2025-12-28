@@ -556,6 +556,22 @@ wheels = [
 ]
 
 [[package]]
+name = "eclipse-zenoh"
+version = "1.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/6d/02042ade4478aee0b63c4cf85ff99018c56349696eac6cc37d67252fd801/eclipse_zenoh-1.7.1.tar.gz", hash = "sha256:32bb0855e847886ea55993fc011ecf60b6f34f8f48a237cfdc69ccfe6bea5f96", size = 160562, upload-time = "2025-12-10T17:36:03.219Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/32/ce79778646bfae19f0f8c7a1ab5be7480e1f4c88e48dc725718712dfe72b/eclipse_zenoh-1.7.1-cp39-abi3-linux_armv6l.whl", hash = "sha256:7b5cdb648a024653d157904c8ce8d99a54c2d988e6ce2d87c82fa76ec8258926", size = 9433970, upload-time = "2025-12-10T17:35:39.107Z" },
+    { url = "https://files.pythonhosted.org/packages/99/57/50e6f5a2f17ee036de8ea94a6df5b09d0b45aa11eaed473da33878ee531b/eclipse_zenoh-1.7.1-cp39-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:676c627810503450cdf5efdf7a246e1cb95c5e45476e5d4ff393ab4e607a14e5", size = 17498661, upload-time = "2025-12-10T17:35:41.591Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/11/3d9ec6bb6d77883ad1fb37749fc0ffb7cf10c64b7cd6632d0043e6f417f2/eclipse_zenoh-1.7.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:b3b1bf7bcdade4ce66132c6893997c9039cc3ea1c10695722fca2aa64da009f2", size = 8902118, upload-time = "2025-12-10T17:35:43.716Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/1e/eadfab7e80c65804f6f8a82b4d776cc9cd9a91e2aa37858ed5ce13aa9ff2/eclipse_zenoh-1.7.1-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:a8a469141fa4ec792070306d72013c48322aafbcbcfccd11072c8642a89457c7", size = 9289930, upload-time = "2025-12-10T17:35:45.576Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/f4/48225cd4e1fa7415b73ee49e7f37e927172b81693c62b208d0543cc1b394/eclipse_zenoh-1.7.1-cp39-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:87b412996b26b07dde1f6d263ece70e62831e13e77f744f61cd873cc690b8583", size = 10110810, upload-time = "2025-12-10T17:35:47.573Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/0a/bd97324cde6dbdc698f268b8d99471599356f69451cfc237a7c5b183cdf9/eclipse_zenoh-1.7.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d8cb0d8f653c9016d3f4b38177579c005e5288a363c2e3c245bf0e73001b3674", size = 9465190, upload-time = "2025-12-10T17:35:49.839Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/c5/f967340deda1820173b782561bb49dc7b5d7e3bb84f0f7e2ae7779bb5bd8/eclipse_zenoh-1.7.1-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:798a85267847090b4b459d541e43cf75e587a98e112beebba25f46e18982f1f2", size = 9432520, upload-time = "2025-12-10T17:35:51.943Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/34/755969bebd21247a904c12e1f71c6d96975bd2c18c05960e4d0acac852cc/eclipse_zenoh-1.7.1-cp39-abi3-win_amd64.whl", hash = "sha256:a638331427253d191707f93413ac6955df3ac465b231b85a7098ded7c2a04e2b", size = 7945878, upload-time = "2025-12-10T17:35:54.849Z" },
+]
+
+[[package]]
 name = "fonttools"
 version = "4.61.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1819,6 +1835,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "control" },
     { name = "discord" },
+    { name = "eclipse-zenoh" },
     { name = "furo" },
     { name = "matplotlib" },
     { name = "myst-parser" },
@@ -1836,6 +1853,7 @@ dependencies = [
 requires-dist = [
     { name = "control", specifier = ">=0.10.2" },
     { name = "discord", specifier = ">=2.3.2" },
+    { name = "eclipse-zenoh", specifier = ">=1.7.1" },
     { name = "furo", specifier = ">=2025.12.19" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "myst-parser", extras = ["extensions"], specifier = ">=4.0.1" },
