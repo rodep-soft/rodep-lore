@@ -16,3 +16,5 @@ up-sim:
 prune-network:
 	docker network prune -f
 
+test-up:
+	docker compose --profile test up -d --build

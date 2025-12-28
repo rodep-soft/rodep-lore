@@ -129,6 +129,12 @@ services:
       dockerfile: Dockerfile.test
     network_mode: host
 
+    # コンテナ内でsystemdを動く状態にする
+    privileged: true
+
+    volumes:
+      - /lib/modules:/lib/modules:ro # ホストのkoを参照
+
     # network_modeとportsは同時につかえないので、
     # sshd_configでDockerfileからポートをかえる
     #ports:

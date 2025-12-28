@@ -1,8 +1,16 @@
 FROM ubuntu:24.04
 
+# cgroup v2の問題。。？ 
+ENV container docker
+
 RUN apt-get update && apt-get install -y \
   openssh-server \
   iputils-ping \
+  iptables \
+  kmod \
+  ca-certificates \
+  gnupg \
+  apt-utils \
   curl \
   python3 \
   python3-apt && \
@@ -14,6 +22,10 @@ RUN sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
 RUN echo 'root:root' | chpasswd
 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# サービスの自動起動を禁止する設定 (exit 101)
+RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && \
+    chmod +x /usr/sbin/policy-rc.d
 
 EXPOSE 2222
 
