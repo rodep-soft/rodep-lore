@@ -12,3 +12,7 @@
       copy:
         content: "Ansibleで作成されたファイルです\n"
         dest: /tmp/ansible_test.txt
+
+    - name: Dockerのseutp
+      include_tasks: tasks/docker.yml
+

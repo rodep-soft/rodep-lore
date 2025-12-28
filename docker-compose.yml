@@ -127,8 +127,12 @@ services:
     build:
       context: ./ansible
       dockerfile: Dockerfile.test
-    ports:
-      - "2222:22"
+    network_mode: host
+
+    # network_modeとportsは同時につかえないので、
+    # sshd_configでDockerfileからポートをかえる
+    #ports:
+    #  - "2222:22"
 
 
 volumes:
