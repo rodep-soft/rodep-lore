@@ -89,7 +89,7 @@ services:
     privileged: true
     network_mode: host
     # systemdに管理を任せる
-    restart: no
+    restart: always
     command:
       - uv
       - run
