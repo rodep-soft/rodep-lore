@@ -41,6 +41,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
 
     volumes:
@@ -77,6 +78,9 @@ services:
       - ./:/app
       - /app/.venv
       - /dev:/dev
+
+    env_file:
+      - ./bot/.env
   
         #devices:
         #- "/dev/doorduino:/dev/doorduino"
