@@ -12,9 +12,10 @@ docker/intro
 programming/languages
 ```
 
+
 ```{toctree}
-:maxdepth: 1
-:caption: CLI:
+:maxdepth: 2
+:caption: Linux:
 
 linux/cli/intro_to_cli
 ```
