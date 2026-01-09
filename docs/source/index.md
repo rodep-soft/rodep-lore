@@ -18,6 +18,7 @@ programming/languages
 :caption: Linux:
 
 linux/cli/intro_to_cli
+linux/networking/mesh_wifi
 ```
 
 ```{toctree}
