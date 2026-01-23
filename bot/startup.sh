@@ -13,7 +13,8 @@ docker compose stop bot pio || true
 # 2. Arduinoへの書き込み (PIO)
 # これが成功しない限り次へ進まない
 echo "Step 1: Uploading Arduino firmware..."
-docker compose run --rm pio
+export DOCKER_BUILDKIT=1
+docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 pio
 
 # 3. インターバル（OSのシリアルポート解放待ち）
 echo "Waiting for serial port to stabilize..."
@@ -23,11 +24,12 @@ sleep 2
 # systemdで管理する場合は run、バックグラウンドにするなら up -d
 echo "Step 2: Starting Discord Monitoring Bot..."
 #docker compose run -d --rm bot
-docker compose --profile setup up -d --build bot simulator
+docker compose build bot #simulator
+docker compose --profile setup up -d bot #simulator
 
 # 5. シミュレーターとドキュメントサーバーの起動
 # simulatorにはprofilesがないので、up -d でまとめて起動
-echo "Step 3: Starting Streamlit Simulator..."
+# echo "Step 3: Starting Streamlit Simulator..."
 # docker compose up -d simulator
 
 echo "=== All services are up! ==="

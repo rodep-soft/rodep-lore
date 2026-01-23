@@ -41,6 +41,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
 
     volumes:
@@ -69,6 +70,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
+
     working_dir: /app
 
     volumes:
@@ -78,6 +81,10 @@ services:
       - /run/user/1000/pulse/native:/run/user/1000/pulse/native
 
 
+
+    env_file:
+      - ./bot/.env
+  
         #devices:
         #- "/dev/doorduino:/dev/doorduino"
 
@@ -90,7 +97,7 @@ services:
     privileged: true
     network_mode: host
     # systemdに管理を任せる
-    restart: no
+    restart: always
     command:
       - uv
       - run
@@ -99,9 +106,12 @@ services:
 
   # simは常駐で動かす
   simulator:
+    profiles:
+      - sim
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
 
 
@@ -124,6 +134,26 @@ services:
       - scripts/control/simple_pid_simulator.py
       - --server.address
       - "0.0.0.0"
+
+  # ansibleのテスト用
+  ansible-test:
+    profiles:
+      - test
+    build:
+      context: ./ansible
+      dockerfile: Dockerfile.test
+    network_mode: host
+
+    # コンテナ内でsystemdを動く状態にする
+    privileged: true
+
+    volumes:
+      - /lib/modules:/lib/modules:ro # ホストのkoを参照
+
+    # network_modeとportsは同時につかえないので、
+    # sshd_configでDockerfileからポートをかえる
+    #ports:
+    #  - "2222:22"
 
 
 volumes:

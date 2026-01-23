@@ -7,6 +7,7 @@ requires-python = ">=3.11.12"
 dependencies = [
     "control>=0.10.2",
     "discord>=2.3.2",
+    "eclipse-zenoh>=1.7.1",
     "furo>=2025.12.19",
     "matplotlib>=3.10.8",
     "myst-parser[extensions]>=4.0.1",

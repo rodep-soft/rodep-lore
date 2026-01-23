@@ -12,11 +12,13 @@ docker/intro
 programming/languages
 ```
 
+
 ```{toctree}
-:maxdepth: 1
-:caption: CLI:
+:maxdepth: 2
+:caption: Linux:
 
 linux/cli/intro_to_cli
+linux/networking/mesh_wifi
 ```
 
 ```{toctree}
@@ -25,4 +27,12 @@ linux/cli/intro_to_cli
 
 docker/intro_to_docker
 docker/intro_to_compose
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Git:
+
+git/clone
+
 ```

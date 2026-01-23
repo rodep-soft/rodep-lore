@@ -1,0 +1,22 @@
+[Unit]
+Description=Rodep Bot with Auto-Upload
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# 動的にホームディレクトリを指定
+WorkingDirectory={{ ansible_env.HOME }}/rodep-lore
+
+# 起動コマンド
+ExecStart=/bin/bash {{ ansible_env.HOME }}/rodep-lore/bot/startup.sh
+
+# 停止時はしっかりコンテナを落とす
+ExecStop=/usr/bin/docker compose -f {{ ansible_env.HOME }}/rodep-lore/bot/docker-compose.yml down
+
+# 接続ユーザー名を動的に流し込む
+User={{ ansible_user_id }}
+
+[Install]
+WantedBy=multi-user.target
