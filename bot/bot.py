@@ -3,72 +3,210 @@ import serial
 import time
 import discord
 import logging
+import random
+import requests
+import subprocess
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
-# ログを出力するように設定（エラー時に何が起きたか見やすくするため）
+# --- ログ設定 ---
 logging.basicConfig(level=logging.INFO)
 
+# --- 環境変数読み込み ---
 load_dotenv()
-
 TOKEN = os.getenv("DISCORD_TOKEN")
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
+try:
+    CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+except (TypeError, ValueError):
+    print("エラー: .env の CHANNEL_ID が不正です。")
+    CHANNEL_ID = 0
+
+# --- シリアルポート設定 ---
 SERIAL_PORT = "/dev/doorduino"
-REAL_PORT = os.path.realpath(SERIAL_PORT)
-
-print(f"Connecting to: {REAL_PORT} (via {SERIAL_PORT})")
-
-
 BAUD_RATE = 9600
-THRESHOLD = 18.0
-NOTIFICATION_COOLDOWN = 12 * 60 * 60  # 12時間
+THRESHOLD = 18.0  # これ以上離れたら「ドアが開いた」と判定
+NOTIFICATION_COOLDOWN = 12 * 60 * 60  # Discord通知のクールダウン（12時間）
 
+# --- キャラクター・声色・セリフの完全連動設定 ---
+SPEECH_PATTERNS = [
+    # ==========================
+    # 1. ずんだもん (語尾: ～のだ)
+    # ==========================
+    {
+        "name": "ずんだもん",
+        "patterns": [
+            # ノーマル(3): 普通
+            {"id": 3, "text": "部室が開いたのだ。ようこそなのだ。"},
+            {"id": 3, "text": "侵入者を検知したのだ。"},
+            # あまあま(1): 甘える
+            {"id": 1, "text": "おかえりなさいなのだ。待ってたのだ。"},
+            {"id": 1, "text": "もっと部室に来てほしいのだ。"},
+            # ツンツン(7): ツンデレ
+            {"id": 7, "text": "べ、別にあんたを待ってたわけじゃないのだ！"},
+            {"id": 7, "text": "やっと来たのだ？ 遅いのだ！"},
+            # ささやき(22): こっそり
+            {"id": 22, "text": "……誰か入ってきたのだ……（ヒソヒソ）"},
+            # ヘロヘロ(75): 疲労
+            {"id": 75, "text": "もう疲れたのだ……誰か来たの……？"},
+            # なみだめ(76): 怯え
+            {"id": 76, "text": "誰も来ないと思って、怖かったのだ……！"}
+        ]
+    },
+    # ==========================
+    # 2. 四国めたん (語尾: ～わよ、～ですわ)
+    # ==========================
+    {
+        "name": "四国めたん",
+        "patterns": [
+            # ノーマル(2): 上品
+            {"id": 2, "text": "あら、いらっしゃい。部室が開いたわよ。"},
+            {"id": 2, "text": "センサー反応あり。特定完了よ。"},
+            # あまあま(0): 甘やかす
+            {"id": 0, "text": "うふふ、おかえりなさい。ゆっくりしていってね。"},
+            # ツンツン(6): 高飛車
+            {"id": 6, "text": "ちょっと、ノックくらいしなさいよ。"},
+            {"id": 6, "text": "気安く入ってこないでくれる？ ……嘘よ、入りなさい。"},
+            # セクシー(4): 色っぽい
+            {"id": 4, "text": "あら……、素敵な来客ね……？"},
+            # ささやき(36): 秘密の話
+            {"id": 36, "text": "静かに……。誰か来たみたいよ……。"}
+        ]
+    },
+    # ==========================
+    # 3. 春日部つむぎ (語尾: ～だよ、～だね)
+    # ==========================
+    {
+        "name": "春日部つむぎ",
+        "patterns": [
+            # 元気系 (ノーマルID: 8)
+            {"id": 8, "text": "やっほー！ 誰か来たみたいだね！"},
+            {"id": 8, "text": "埼玉から見てるよ！ いらっしゃーい！"},
+            {"id": 8, "text": "お疲れ様ー！ 部室、空いたよ！"},
+            # ちょっと生意気系
+            {"id": 8, "text": "お、やっと来たの？"},
+            {"id": 8, "text": "センサーが反応してるよー、誰かなー？"},
+            # まったり系
+            {"id": 8, "text": "んー、誰か来たかも。ゆっくりしてきなー。"}
+        ]
+    }
+]
+
+# --- Bot設定 ---
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# シリアルのタイムアウトを短く設定
-ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.1)
+# --- シリアル初期化 ---
+try:
+    if os.path.exists(SERIAL_PORT):
+        print(f"Connecting to: {os.path.realpath(SERIAL_PORT)}")
+    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0.1)
+except serial.SerialException as e:
+    print(f"シリアル接続エラー: {e}")
+    ser = None
 
 last_sent_time = 0
-# 最初から「開いている」判定にならないよう、起動時は一旦False（不明）から始める
 was_below_threshold = False 
 
+# --- Voicevox関数 ---
+def speak_zunda(text, speaker_id=3, host="127.0.0.1", port=50021):
+    """
+    指定されたIDとテキストでVoicevoxに喋らせる
+    """
+    try:
+        # 1. 音声クエリの作成
+        params = {'text': text, 'speaker': speaker_id}
+        query_res = requests.post(
+            f"http://{host}:{port}/audio_query", 
+            params=params, 
+            timeout=3
+        )
+
+        if query_res.status_code != 200:
+            print(f"Voicevox Query Error: {query_res.status_code}")
+            return
+
+        # 2. 音声合成
+        synthesis_res = requests.post(
+            f"http://{host}:{port}/synthesis",
+            params={'speaker': speaker_id},
+            json=query_res.json(),
+            timeout=5
+        )
+
+        if synthesis_res.status_code != 200:
+            print(f"Voicevox Synthesis Error: {synthesis_res.status_code}")
+            return
+
+        # 3. 再生 (paplay使用)
+        process = subprocess.Popen(['paplay'], stdin=subprocess.PIPE)
+        process.communicate(input=synthesis_res.content)
+        
+    except Exception as e:
+        print(f"読み上げ失敗: {e}")
+
+# --- Botイベント ---
 @bot.event
 async def on_ready():
     print(f"--- Logged in as {bot.user} ---")
     if not serial_task.is_running():
         serial_task.start()
 
-@tasks.loop(seconds=0.5) # Arduino(1.0)に合わせる
+@bot.command()
+async def ping(ctx):
+    status = "準備完了(閉)" if was_below_threshold else "検知中(開)"
+    await ctx.send(f"Pong! (Sensor Status: {status})")
+
+# --- メインループ ---
+@tasks.loop(seconds=0.5)
 async def serial_task():
     global last_sent_time, was_below_threshold
 
-    # --- 最強ポイント1: バッファの読み飛ばし ---
-    # 溜まっているデータを全て読み切り、最新の1行だけを取得する（ラグ解消）
+    if ser is None or not ser.is_open:
+        return
+
+    # バッファの読み飛ばし（ラグ解消）
     latest_data = None
-    while ser.in_waiting > 0:
-        latest_data = ser.readline()
+    try:
+        while ser.in_waiting > 0:
+            latest_data = ser.readline()
+    except OSError:
+        return
     
     if not latest_data:
         return
 
     try:
         text = latest_data.decode("utf-8", errors="ignore").strip()
-        # "Out of range"などは無視
         distance = float(text)
     except ValueError:
         return
 
     now = int(time.time())
 
-    # distance > THRESHOLD でかつ「前回は閉まっていた」場合に通知
+    # --- 判定ロジック ---
     if distance > THRESHOLD:
+        # 前回は閉じていて、今回開いた（立ち上がりエッジ）
         if was_below_threshold:
-            # 12時間経過チェック
+            print("--- Sensor Triggered ---")
+
+            # 1. キャラクターをランダム選出
+            character = random.choice(SPEECH_PATTERNS)
+            # 2. パターン（IDとセリフ）をランダム選出
+            pattern = random.choice(character["patterns"])
+            
+            voice_id = pattern["id"]
+            voice_text = pattern["text"]
+            
+            print(f"Character: {character['name']} (ID:{voice_id})")
+            print(f"Text: {voice_text}")
+
+            # 喋らせる
+            speak_zunda(voice_text, speaker_id=voice_id)
+
+            # Discord通知（クールダウンあり）
             if (now - last_sent_time) >= NOTIFICATION_COOLDOWN:
-                # fetch_channel を使うことで、キャッシュがなくても取得しにいく
                 try:
                     channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
                     if channel:
@@ -78,21 +216,20 @@ async def serial_task():
                 except Exception as e:
                     print(f"Failed to send message: {e}")
         
-        # 通知したかに関わらず、しきい値を超えている間は False
         was_below_threshold = False
     else:
-        # 17cm以下のデータが来たら、次に「開いた」と言える準備ができる
+        # 閾値以下（ドアが閉まっている）
         was_below_threshold = True
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f"Pong! (Distance logic is {'Ready' if was_below_threshold else 'Monitoring'})")
-
-# シリアルポートが閉じていたら開く処理を追加（エラー対策）
+# シリアル再接続用
 @serial_task.before_loop
 async def before_serial():
     await bot.wait_until_ready()
-    if not ser.is_open:
-        ser.open()
+    if ser is not None and not ser.is_open:
+        try:
+            ser.open()
+        except Exception:
+            pass
 
+# Bot起動
 bot.run(TOKEN)

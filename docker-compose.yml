@@ -75,10 +75,17 @@ services:
       - ./:/app
       - /app/.venv
       - /dev:/dev
-  
+      - /run/user/1000/pulse/native:/run/user/1000/pulse/native
+
+
         #devices:
         #- "/dev/doorduino:/dev/doorduino"
 
+    environment:
+      # コンテナ内のアプリにソケットの場所を教える
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+      - PULSE_COOKIE=/run/user/1000/pulse/cookie # 必要に応じて
+    
     tty: true
     privileged: true
     network_mode: host
