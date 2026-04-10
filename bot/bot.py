@@ -17,10 +17,14 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 try:
-    CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-except (TypeError, ValueError):
-    print("エラー: .env の CHANNEL_ID が不正です。")
-    CHANNEL_ID = 0
+    # 互換性のため CHANNEL_ID にも対応しつつ、複数指定可能な CHANNEL_IDS を優先
+    channel_ids_str = os.getenv("CHANNEL_IDS", os.getenv("CHANNEL_ID", ""))
+    CHANNEL_IDS = [int(cid.strip()) for cid in channel_ids_str.split(",") if cid.strip()]
+    if not CHANNEL_IDS:
+        print("警告: .env に CHANNEL_IDS (または CHANNEL_ID) が設定されていません。")
+except ValueError:
+    print("エラー: .env の CHANNEL_IDS の形式が不正です。カンマ区切りの数字を指定してください。")
+    CHANNEL_IDS = []
 
 # --- シリアルポート設定 ---
 SERIAL_PORT = "/dev/doorduino"
@@ -207,14 +211,19 @@ async def serial_task():
 
             # Discord通知（クールダウンあり）
             if (now - last_sent_time) >= NOTIFICATION_COOLDOWN:
-                try:
-                    channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
-                    if channel:
-                        await channel.send(f"部室空きました: 現在の距離 **{distance:.1f} cm**")
-                        last_sent_time = now
-                        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Notification sent!")
-                except Exception as e:
-                    print(f"Failed to send message: {e}")
+                success_count = 0
+                for cid in CHANNEL_IDS:
+                    try:
+                        channel = bot.get_channel(cid) or await bot.fetch_channel(cid)
+                        if channel:
+                            await channel.send("部室空きました")
+                            success_count += 1
+                    except Exception as e:
+                        print(f"Failed to send message to channel {cid}: {e}")
+                
+                if success_count > 0:
+                    last_sent_time = now
+                    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Notification sent to {success_count} channels!")
         
         was_below_threshold = False
     else:
