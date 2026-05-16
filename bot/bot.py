@@ -1,6 +1,7 @@
 import os
 import serial
 import time
+import datetime
 import discord
 import logging
 import random
@@ -30,7 +31,6 @@ except ValueError:
 SERIAL_PORT = "/dev/doorduino"
 BAUD_RATE = 9600
 THRESHOLD = 18.0  # これ以上離れたら「ドアが開いた」と判定
-NOTIFICATION_COOLDOWN = 12 * 60 * 60  # Discord通知のクールダウン（12時間）
 
 # --- キャラクター・声色・セリフの完全連動設定 ---
 SPEECH_PATTERNS = [
@@ -110,7 +110,7 @@ except serial.SerialException as e:
     print(f"シリアル接続エラー: {e}")
     ser = None
 
-last_sent_time = 0
+last_sent_date = datetime.date.today()
 was_below_threshold = False 
 
 # --- Voicevox関数 ---
@@ -165,7 +165,7 @@ async def ping(ctx):
 # --- メインループ ---
 @tasks.loop(seconds=0.5)
 async def serial_task():
-    global last_sent_time, was_below_threshold
+    global last_sent_date, was_below_threshold
 
     if ser is None or not ser.is_open:
         return
@@ -187,7 +187,7 @@ async def serial_task():
     except ValueError:
         return
 
-    now = int(time.time())
+    today_date = datetime.date.today()
 
     # --- 判定ロジック ---
     if distance > THRESHOLD:
@@ -210,7 +210,7 @@ async def serial_task():
             speak_zunda(voice_text, speaker_id=voice_id)
 
             # Discord通知（クールダウンあり）
-            if (now - last_sent_time) >= NOTIFICATION_COOLDOWN:
+            if today_date > last_sent_date:
                 success_count = 0
                 for cid in CHANNEL_IDS:
                     try:
@@ -222,7 +222,7 @@ async def serial_task():
                         print(f"Failed to send message to channel {cid}: {e}")
                 
                 if success_count > 0:
-                    last_sent_time = now
+                    last_sent_date = today_date
                     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Notification sent to {success_count} channels!")
         
         was_below_threshold = False
