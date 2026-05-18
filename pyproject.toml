@@ -6,9 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11.12"
 dependencies = [
     "control>=0.10.2",
-    "datetime>=6.0",
     "discord>=2.3.2",
-    "discord-py>=2.6.4",
     "eclipse-zenoh>=1.7.1",
     "furo>=2025.12.19",
     "matplotlib>=3.10.8",
