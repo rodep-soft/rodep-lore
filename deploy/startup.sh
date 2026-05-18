@@ -24,8 +24,8 @@ sleep 2
 # systemdで管理する場合は run、バックグラウンドにするなら up -d
 echo "Step 2: Starting Discord Monitoring Bot..."
 #docker compose run -d --rm bot
-docker compose build door_bot #simulator
-docker compose --profile setup up -d door_bot #simulator
+docker compose build door_bot attendance_bot #simulator
+docker compose --profile setup up -d door_bot attendance_bot #simulator
 docker compose --profile voicebox up -d voicebox
 
 # 5. シミュレーターとドキュメントサーバーの起動
