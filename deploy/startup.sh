@@ -8,7 +8,7 @@ echo "=== Room Server Startup Sequence ==="
 
 # 1. 既存の古いコンテナを一旦掃除（ポート競合回避）
 echo "Cleaning up existing containers..."
-docker compose stop bot pio || true
+docker compose stop door_bot pio || true
 
 # 2. Arduinoへの書き込み (PIO)
 # これが成功しない限り次へ進まない
@@ -24,8 +24,8 @@ sleep 2
 # systemdで管理する場合は run、バックグラウンドにするなら up -d
 echo "Step 2: Starting Discord Monitoring Bot..."
 #docker compose run -d --rm bot
-docker compose build bot #simulator
-docker compose --profile setup up -d bot #simulator
+docker compose build door_bot #simulator
+docker compose --profile setup up -d door_bot #simulator
 docker compose --profile voicebox up -d voicebox
 
 # 5. シミュレーターとドキュメントサーバーの起動

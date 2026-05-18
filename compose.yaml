@@ -121,6 +121,13 @@ services:
     tty: true
     privileged: true
     network_mode: host
+
+    working_dir: /app
+    volumes:
+      - ./attendance_bot:/app
+      - /app/.venv
+      - /dev:/dev
+      - /run/user/1000/pulse/native:/run/user/1000/pulse/native
       
 
     restart: always
@@ -129,9 +136,6 @@ services:
       - run
       - attendance_bot/main.py
       
-
-
-
 
   # simは常駐で動かす
   # tailscale経由でアクセス可能
