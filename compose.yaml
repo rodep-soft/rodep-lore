@@ -134,7 +134,7 @@ services:
     command:
       - uv
       - run
-      - attendance_bot/main.py
+      - main.py
       
 
   # simは常駐で動かす
