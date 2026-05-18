@@ -8,6 +8,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pulseaudio-utils \
     libasound2 \
+    fontconfig \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 

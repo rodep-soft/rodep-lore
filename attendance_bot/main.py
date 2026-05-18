@@ -70,12 +70,25 @@ JST = datetime.timezone(datetime.timedelta(hours=9), 'JST')
 
 def get_japanese_font():
     """Dynamically find a Japanese font available on the system."""
+    # List of common Japanese font paths on Linux
+    fallbacks = [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
+        "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
+    ]
+    
     try:
         result = subprocess.run(['fc-match', '-f', '%{file}', ':lang=ja'], capture_output=True, text=True)
-        if result.stdout:
+        if result.stdout and os.path.exists(result.stdout.strip()):
             return result.stdout.strip()
     except Exception:
         pass
+    
+    for path in fallbacks:
+        if os.path.exists(path):
+            return path
+            
     return None
 
 class AttendanceView(View):
