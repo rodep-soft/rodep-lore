@@ -35,6 +35,8 @@ services:
       - --port
       - "8080"
 
+  # arduino制御
+  # docker compose --profile setup logs
   pio:
     profiles:
       - setup
@@ -64,7 +66,8 @@ services:
       - -t
       - upload
 
-  bot:
+  # discord botのメインのコンテナ
+  door_bot:
     profiles:
       - setup
     build:
@@ -83,7 +86,7 @@ services:
 
 
     env_file:
-      - ./bot/.env
+      - ./door_bot/.env
   
         #devices:
         #- "/dev/doorduino:/dev/doorduino"
@@ -101,13 +104,42 @@ services:
     command:
       - uv
       - run
-      - bot/bot.py
+      - door_bot/bot.py
+
+
+  # 大会用などの出席管理bot
+  attendance_bot:
+    profiles:
+      - setup
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    env_file:
+      - ./attendance_bot/.env
+
+    tty: true
+    privileged: true
+    network_mode: host
+      
+
+    restart: always
+    command:
+      - uv
+      - run
+      - attendance_bot/main.py
+      
+
+
 
 
   # simは常駐で動かす
+  # tailscale経由でアクセス可能
+  # cloudflare tunnel越しにも公開している
+  # /etc/systemd/system/cloudflared.service
   simulator:
     profiles:
-      - sim
+      - voicebox
     build:
       context: .
       dockerfile: Dockerfile
@@ -135,25 +167,38 @@ services:
       - --server.address
       - "0.0.0.0"
 
-  # ansibleのテスト用
-  ansible-test:
+  voicebox:
     profiles:
-      - test
-    build:
-      context: ./ansible
-      dockerfile: Dockerfile.test
-    network_mode: host
+      - "setup"
 
-    # コンテナ内でsystemdを動く状態にする
-    privileged: true
+    image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
+    ports:
+      - "50021:50021"
 
-    volumes:
-      - /lib/modules:/lib/modules:ro # ホストのkoを参照
+    restart: unless-stopped
 
-    # network_modeとportsは同時につかえないので、
-    # sshd_configでDockerfileからポートをかえる
-    #ports:
-    #  - "2222:22"
+
+
+  # ansibleのテスト用
+  # 今は廃止済
+  #ansible-test:
+  #  profiles:
+  #    - test
+  #  build:
+  #    context: ./ansible
+  #    dockerfile: Dockerfile.test
+  #  network_mode: host
+
+  #  # コンテナ内でsystemdを動く状態にする
+  #  privileged: true
+
+  #  volumes:
+  #    - /lib/modules:/lib/modules:ro # ホストのkoを参照
+
+  #  # network_modeとportsは同時につかえないので、
+  #  # sshd_configでDockerfileからポートをかえる
+  #  #ports:
+  #  #  - "2222:22"
 
 
 volumes:

@@ -26,6 +26,7 @@ echo "Step 2: Starting Discord Monitoring Bot..."
 #docker compose run -d --rm bot
 docker compose build bot #simulator
 docker compose --profile setup up -d bot #simulator
+docker compose --profile voicebox up -d voicebox
 
 # 5. シミュレーターとドキュメントサーバーの起動
 # simulatorにはprofilesがないので、up -d でまとめて起動
