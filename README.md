@@ -12,6 +12,10 @@ sphinxを導入しており、mainにpushするとGitHub ActionsのCIが回っ�
 
 [公開中のドキュメント](https://rodep-soft.github.io/rodep-lore/)
 
+## メンテナンス
+
+- maintain/ prefixをつけてbranchを切り作業する
+
 ## Docs作業時の注意
 
 - ブランチは必ず切ってPRを出すこと
