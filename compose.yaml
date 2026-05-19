@@ -181,30 +181,20 @@ services:
 
     restart: unless-stopped
 
-
-
-  # ansibleのテスト用
-  # 今は廃止済
-  #ansible-test:
-  #  profiles:
-  #    - test
-  #  build:
-  #    context: ./ansible
-  #    dockerfile: Dockerfile.test
-  #  network_mode: host
-
-  #  # コンテナ内でsystemdを動く状態にする
-  #  privileged: true
-
-  #  volumes:
-  #    - /lib/modules:/lib/modules:ro # ホストのkoを参照
-
-  #  # network_modeとportsは同時につかえないので、
-  #  # sshd_configでDockerfileからポートをかえる
-  #  #ports:
-  #  #  - "2222:22"
-
+  db:
+    profiles:
+      - setup
+    image: postgres:15-alpine
+    restart: always
+    network_mode: host
+    environment:
+      - POSTGRES_DB=attendance_bot
+      - POSTGRES_USER=bot_user
+      - POSTGRES_PASSWORD=bot_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   pio_cache:
   uv_cache:
+  postgres_data:
