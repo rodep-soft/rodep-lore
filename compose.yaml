@@ -12,9 +12,6 @@ services:
     # bind mount
     volumes:
       - ./:/app
-      # コンテナ内の.venv消える？
-      # これはやばい可能性がある
-      - /app/.venv
 
     # firewalld/iptables等に注意
     # hostでListenしてるか見る
@@ -27,6 +24,7 @@ services:
     command:
       - uv
       - run
+      - --no-sync
       - sphinx-autobuild
       - docs/source
       - docs/build/html
@@ -48,7 +46,6 @@ services:
 
     volumes:
       - ./:/app
-      - /app/.venv
       - /dev/bus/usb:/dev/bus/usb
       - pio_cache:/root/.platformio
       - uv_cache:/root/.cache/uv
@@ -59,10 +56,11 @@ services:
     command:
       - uv
       - run
+      - --no-sync
       - pio
       - run
       - -d
-      - bot
+      - door_bot
       - -t
       - upload
 
@@ -79,7 +77,6 @@ services:
 
     volumes:
       - ./:/app
-      - /app/.venv
       - /dev:/dev
       - /run/user/1000/pulse/native:/run/user/1000/pulse/native
 
@@ -104,6 +101,7 @@ services:
     command:
       - uv
       - run
+      - --no-sync
       - door_bot/bot.py
 
 
@@ -122,10 +120,9 @@ services:
     privileged: true
     network_mode: host
 
-    working_dir: /app
+    working_dir: /app/attendance_bot
     volumes:
-      - ./attendance_bot:/app
-      - /app/.venv
+      - ./:/app
       - /dev:/dev
       - /run/user/1000/pulse/native:/run/user/1000/pulse/native
       
@@ -134,6 +131,7 @@ services:
     command:
       - uv
       - run
+      - --no-sync
       - main.py
       
 
@@ -153,7 +151,6 @@ services:
 
     volumes:
       - ./:/app
-      - /app/.venv
 
     #network_mode: host
     ports:
@@ -165,6 +162,7 @@ services:
     command:
       - uv
       - run
+      - --no-sync
       - streamlit
       - run
       - scripts/control/simple_pid_simulator.py

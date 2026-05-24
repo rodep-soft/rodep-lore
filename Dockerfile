@@ -5,6 +5,11 @@ FROM astral/uv:python3.12-bookworm-slim
 
 WORKDIR /app
 
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+# Use a separate directory for the virtual environment to avoid conflicts with host mounts
+ENV UV_PROJECT_ENVIRONMENT=/venv
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pulseaudio-utils \
     libasound2 \

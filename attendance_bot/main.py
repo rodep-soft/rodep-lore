@@ -47,6 +47,9 @@ async def init_db():
             )
         ''')
         
+        # Cleanup "Unknown" users who might have been added by error
+        await conn.execute("UPDATE users SET is_tracking = FALSE WHERE name ILIKE 'unknown'")
+        
         await conn.execute('''
             CREATE TABLE IF NOT EXISTS attendance (
                 id SERIAL PRIMARY KEY,
@@ -85,13 +88,12 @@ async def migrate_json_to_db():
                     all_uids = set(main_members.keys()) | set(active_members.keys())
                     for uid in all_uids:
                         name = main_members.get(uid) or active_members.get(uid)
-                        is_main = uid in main_members
                         await conn.execute('''
-                            INSERT INTO users (user_id, name, is_main, is_tracking)
-                            VALUES ($1, $2, $3, TRUE)
+                            INSERT INTO users (user_id, name, is_tracking)
+                            VALUES ($1, $2, TRUE)
                             ON CONFLICT (user_id) DO UPDATE 
-                            SET name = EXCLUDED.name, is_main = EXCLUDED.is_main
-                        ''', int(uid), name, is_main)
+                            SET name = EXCLUDED.name
+                        ''', int(uid), name)
                 os.rename(MEMBERS_FILE, MEMBERS_FILE + ".bak")
             except Exception as e:
                 print(f"Error migrating members: {e}")
@@ -173,10 +175,17 @@ def get_japanese_font():
     return None
 
 class AttendanceView(View):
-    def __init__(self, is_test=False):
+    def __init__(self, is_test=False, is_saturday=None):
         # timeout=None allows the view to persist across bot restarts
         super().__init__(timeout=None)
         self.is_test = is_test
+        
+        if is_saturday is True:
+            self.remove_item(self.btn_3)
+            self.remove_item(self.btn_4)
+            self.remove_item(self.btn_5)
+        elif is_saturday is False:
+            self.remove_item(self.btn_sat)
 
     async def update_attendance(self, interaction: discord.Interaction, status: str):
         user_id = interaction.user.id
@@ -199,6 +208,10 @@ class AttendanceView(View):
             ''', user_id, today, status, self.is_test)
             
         await interaction.response.send_message(f"「{status}」で出欠を登録しました！", ephemeral=True)
+
+    @discord.ui.button(label="出席", style=discord.ButtonStyle.primary, custom_id="attend_sat")
+    async def btn_sat(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.update_attendance(interaction, "出席")
 
     @discord.ui.button(label="3限終わり", style=discord.ButtonStyle.primary, custom_id="attend_3")
     async def btn_3(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -261,27 +274,30 @@ async def get_events_countdown_text():
     return ""
 
 async def send_attendance_message(channel, is_test=False):
-    view = AttendanceView(is_test=is_test)
+    today = datetime.datetime.now(JST).date()
+    is_saturday = today.weekday() == 5
+    
+    view = AttendanceView(is_test=is_test, is_saturday=is_saturday)
     prefix = "【テスト】\n" if is_test else ""
     countdown_text = await get_events_countdown_text()
     
+    question = "会議に参加しますか？" if is_saturday else "今日の活動に参加しますか？"
+    
     await channel.send(
-        f"{prefix}{countdown_text}今日の活動に参加しますか？",
+        f"{prefix}{countdown_text}{question}",
         view=view
     )
 
 async def send_attendance_summary(channel, is_test=False):
     today = datetime.datetime.now(JST).date()
+    is_saturday = today.weekday() == 5
     
-    categories = {
-        "3限終わり": [],
-        "4限終わり": [],
-        "5限終わり": [],
-        "欠席": [],
-        "未回答者": []
-    }
+    if is_saturday:
+        display_order = ["出席", "欠席", "未回答者"]
+    else:
+        display_order = ["3限終わり", "4限終わり", "5限終わり", "欠席", "未回答者"]
     
-    unanswered_ids = []
+    categories = {k: [] for k in display_order}
     
     async with pool.acquire() as conn:
         # Get all attendance for today
@@ -299,24 +315,21 @@ async def send_attendance_summary(channel, is_test=False):
             status = row['status']
             if status in categories:
                 categories[status].append(name)
+            elif is_saturday and status in ["3限終わり", "4限終わり", "5限終わり"]:
+                # Handle edge case where someone used an old button on Saturday
+                categories["出席"].append(name)
                 
         # Calculate non-respondents
         missing_rows = await conn.fetch('''
-            SELECT user_id, name, is_main 
+            SELECT name 
             FROM users 
-            WHERE is_tracking = TRUE 
+            WHERE is_tracking = TRUE AND name NOT ILIKE 'unknown'
             AND user_id NOT IN (SELECT user_id FROM attendance WHERE target_date = $1 AND is_test = $2)
             ORDER BY name ASC
         ''', today, is_test)
-        
-        for row in missing_rows:
-            name = row['name']
-            if row['is_main']:
-                name = f"⭐ {name}"
-                unanswered_ids.append(row['user_id'])
-            categories["未回答者"].append(name)
 
-    # ... (Image generation code is unchanged)
+        for row in missing_rows:
+            categories["未回答者"].append(row['name'])
 
     # Image configuration - Vertical mobile-friendly layout
     width = 720
@@ -357,7 +370,10 @@ async def send_attendance_summary(channel, is_test=False):
     title_text = f"{prefix}出欠集計結果"
     
     draw.text((40, 30), title_text, fill=(255, 255, 255), font=title_font)
-    total_joined = sum(len(categories[c]) for c in ["3限終わり", "4限終わり", "5限終わり"])
+    if is_saturday:
+        total_joined = len(categories.get("出席", []))
+    else:
+        total_joined = sum(len(categories.get(c, [])) for c in ["3限終わり", "4限終わり", "5限終わり"])
     draw.text((40, 90), f"日付: {today_str}   |   合計参加: {total_joined}人", fill=(224, 231, 255), font=small_font)
 
     # Colors for categories
@@ -365,13 +381,14 @@ async def send_attendance_summary(channel, is_test=False):
         "3限終わり": (16, 185, 129), # Emerald green
         "4限終わり": (59, 130, 246), # Blue
         "5限終わり": (245, 158, 11), # Amber
+        "出席": (16, 185, 129),       # Emerald green
         "欠席": (239, 68, 68),        # Red
         "未回答者": (156, 163, 175)    # Gray
     }
 
     current_y = header_height + 40
 
-    for col in ["3限終わり", "4限終わり", "5限終わり", "欠席", "未回答者"]:
+    for col in display_order:
         users = categories[col]
         color = cat_colors.get(col, (100, 100, 100))
         
@@ -414,13 +431,7 @@ async def send_attendance_summary(channel, is_test=False):
         file = discord.File(fp=image_binary, filename='attendance_summary.png')
         countdown_text = await get_events_countdown_text()
         
-        # Create mention text for main members who haven't responded
-        mention_text = ""
-        if unanswered_ids:
-            mentions = [f"<@{uid}>" for uid in unanswered_ids]
-            mention_text = "\n\n⚠️ **未回答のメインメンバー:** " + " ".join(mentions) + "\n回答をお願いします！"
-            
-        await channel.send(f"{prefix}{countdown_text}本日の出欠集計結果です！{mention_text}", file=file)
+        await channel.send(f"{prefix}{countdown_text}本日の出欠集計結果です！", file=file)
 
 @tasks.loop(time=time_8am)
 async def send_attendance_check():
@@ -542,37 +553,12 @@ async def list_events_command(ctx):
     
     await ctx.send("\n".join(lines))
 
-@bot.command(name="add_main")
-async def add_main_command(ctx, member: discord.Member):
-    """メインメンバーを追加します。例: !add_main @user"""
-    user_id = member.id
-    name = member.display_name
-    async with pool.acquire() as conn:
-        await conn.execute('''
-            INSERT INTO users (user_id, name, is_main, is_tracking)
-            VALUES ($1, $2, TRUE, TRUE)
-            ON CONFLICT (user_id) DO UPDATE SET is_main = TRUE, is_tracking = TRUE, name = EXCLUDED.name
-        ''', user_id, name)
-    await ctx.send(f"✅ {name} をメインメンバーに登録しました。")
-
-@bot.command(name="remove_main")
-async def remove_main_command(ctx, member: discord.Member):
-    """メインメンバーを解除します。例: !remove_main @user"""
-    user_id = member.id
-    async with pool.acquire() as conn:
-        result = await conn.execute('UPDATE users SET is_main = FALSE WHERE user_id = $1', user_id)
-        
-    if result == "UPDATE 1":
-        await ctx.send(f"🗑️ {member.display_name} をメインメンバーから解除しました。")
-    else:
-        await ctx.send("❌ そのユーザーは登録されていません。")
-
 @bot.command(name="forget_me")
 async def forget_me_command(ctx):
     """自身の出欠トラッキング（未回答者リストへの表示）を停止します。"""
     user_id = ctx.author.id
     async with pool.acquire() as conn:
-        result = await conn.execute('UPDATE users SET is_main = FALSE, is_tracking = FALSE WHERE user_id = $1', user_id)
+        result = await conn.execute('UPDATE users SET is_tracking = FALSE WHERE user_id = $1', user_id)
         
     if result == "UPDATE 1":
         await ctx.send(f"👋 {ctx.author.display_name} さんのトラッキングを停止しました。")
@@ -583,16 +569,56 @@ async def forget_me_command(ctx):
 async def list_members_command(ctx):
     """登録されているメンバーの一覧を表示します"""
     async with pool.acquire() as conn:
-        main_rows = await conn.fetch('SELECT name FROM users WHERE is_main = TRUE ORDER BY name ASC')
-        active_rows = await conn.fetch('SELECT name FROM users WHERE is_main = FALSE AND is_tracking = TRUE ORDER BY name ASC')
+        rows = await conn.fetch('SELECT name FROM users WHERE is_tracking = TRUE ORDER BY name ASC')
     
-    main_list = [f"・{r['name']}" for r in main_rows]
-    active_list = [f"・{r['name']}" for r in active_rows]
+    member_list = [f"・{r['name']}" for r in rows]
     
-    msg = "**【メインメンバー】**\n" + ("\n".join(main_list) if main_list else "なし")
-    msg += "\n\n**【その他のアクティブメンバー】**\n" + ("\n".join(active_list) if active_list else "なし")
+    msg = "**【登録されているメンバー一覧】**\n" + ("\n".join(member_list) if member_list else "なし")
     
     await ctx.send(msg)
+
+@bot.command(name="add_member")
+async def add_member_command(ctx, member: discord.Member = None):
+    """指定したメンバーを登録し、出欠トラッキングの対象にします。"""
+    if member is None:
+        await ctx.send("❌ 登録したいメンバーをメンションしてください。例: `!add_member @ユーザー名`")
+        return
+
+    async with pool.acquire() as conn:
+        await conn.execute('''
+            INSERT INTO users (user_id, name, is_tracking)
+            VALUES ($1, $2, TRUE)
+            ON CONFLICT (user_id) DO UPDATE 
+            SET name = EXCLUDED.name, is_tracking = TRUE
+        ''', member.id, member.display_name)
+        
+    await ctx.send(f"✅ {member.display_name} さんをメンバーリストに登録しました！")
+
+@bot.command(name="set_main")
+async def set_main_command(ctx, member: discord.Member = None):
+    """指定したメンバーを「メインメンバー」として設定します。"""
+    if member is None:
+        await ctx.send("❌ 指定したいメンバーをメンションしてください。")
+        return
+
+    async with pool.acquire() as conn:
+        await conn.execute('''
+            UPDATE users SET is_main = TRUE, is_tracking = TRUE WHERE user_id = $1
+        ''', member.id)
+        
+    await ctx.send(f"⭐ {member.display_name} さんをメインメンバーに設定しました！")
+
+@bot.command(name="remove_member")
+async def remove_member_command(ctx, member: discord.Member = None):
+    """指定したメンバーをリストから削除（トラッキング停止）します。"""
+    if member is None:
+        await ctx.send("❌ 削除したいメンバーをメンションしてください。")
+        return
+
+    async with pool.acquire() as conn:
+        await conn.execute('UPDATE users SET is_tracking = FALSE WHERE user_id = $1', member.id)
+        
+    await ctx.send(f"🗑️ {member.display_name} さんのトラッキングを停止しました。")
 
 @bot.command(name="help")
 async def help_command(ctx):
@@ -603,8 +629,9 @@ async def help_command(ctx):
         "`!ping` : Botの稼働状況を確認します\n"
         "`!status` : 自動スケジュールの稼働状況を確認します\n\n"
         "**■ メンバー管理**\n"
-        "`!add_main @user` : 指定した人をメインメンバー（回答必須）にします\n"
-        "`!remove_main @user` : メインメンバーを解除します\n"
+        "`!add_member @名前` : メンバーを手動で登録します\n"
+        "`!set_main @名前` : メインメンバーとして設定します\n"
+        "`!remove_member @名前` : メンバーの登録を解除します\n"
         "`!forget_me` : 自身のトラッキングを停止します\n"
         "`!list_members` : 登録されているメンバー一覧を表示します\n\n"
         "**■ 自動送信の制御**\n"

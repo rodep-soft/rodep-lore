@@ -5,13 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11.12"
 dependencies = [
+    "asyncpg>=0.29.0",
+    "certifi>=2024.2.2",
     "control>=0.10.2",
     "discord>=2.3.2",
     "eclipse-zenoh>=1.7.1",
     "furo>=2025.12.19",
     "matplotlib>=3.10.8",
-    "myst-parser[extensions]>=4.0.1",
+    "myst-parser>=4.0.1",
     "numpy>=2.4.0",
+    "pillow>=10.2.0",
     "platformio>=6.1.18",
     "pyserial>=3.5",
     "python-dotenv>=1.2.1",
@@ -20,5 +23,4 @@ dependencies = [
     "sphinx-autobuild>=2025.8.25",
     "sphinx-rtd-theme>=0.5.1",
     "streamlit>=1.52.2",
-    #"subprocess",
 ]
