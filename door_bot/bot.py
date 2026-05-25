@@ -230,35 +230,35 @@ async def network(ctx):
     await ctx.send("🌐 ネットワーク速度を計測中です。約30秒ほどお待ちください...")
     
     try:
-        # speedtest-cliを外部スクリプトとして実行 (インストール不要な1ファイル版を使用)
-        cmd = "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 - --json"
-        process = await asyncio.create_subprocess_shell(
-            cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
+        import speedtest
         
-        if process.returncode == 0:
-            data = json.loads(stdout.decode())
-            download = data['download'] / 1_000_000  # Mbps
-            upload = data['upload'] / 1_000_000      # Mbps
-            ping = data['ping']
-            server = data['server']['sponsor']
-            location = data['server']['name']
+        # 非同期実行のためにスレッドで実行
+        loop = asyncio.get_event_loop()
+        def run_speedtest():
+            s = speedtest.Speedtest()
+            s.get_best_server()
+            s.download()
+            s.upload()
+            return s.results.dict()
             
-            msg = (
-                "**📶 回線状況レポート**\n"
-                f"┣ ダウンロード: `{download:.2f} Mbps`\n"
-                f"┣ アップロード: `{upload:.2f} Mbps`\n"
-                f"┣ ピング: `{ping:.2f} ms`\n"
-                f"┗ 測定サーバー: `{server} ({location})`"
-            )
-            await ctx.send(msg)
-        else:
-            await ctx.send(f"❌ 計測に失敗しました: {stderr.decode()}")
+        data = await loop.run_in_executor(None, run_speedtest)
+        
+        download = data['download'] / 1_000_000  # Mbps
+        upload = data['upload'] / 1_000_000      # Mbps
+        ping = data['ping']
+        server = data['server']['sponsor']
+        location = data['server']['name']
+        
+        msg = (
+            "**📶 回線状況レポート**\n"
+            f"┣ ダウンロード: `{download:.2f} Mbps`\n"
+            f"┣ アップロード: `{upload:.2f} Mbps`\n"
+            f"┣ ピング: `{ping:.2f} ms`\n"
+            f"┗ 測定サーバー: `{server} ({location})`"
+        )
+        await ctx.send(msg)
     except Exception as e:
-        await ctx.send(f"❌ エラーが発生しました: {e}")
+        await ctx.send(f"❌ エラーが発生しました: {e}\n(speedtest-cliがインストールされていない可能性があります)")
 
 @bot.remove_command("help")
 @bot.command()
