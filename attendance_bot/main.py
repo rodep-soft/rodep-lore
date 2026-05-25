@@ -325,7 +325,7 @@ async def send_attendance_summary(channel, is_test=False):
         missing_rows = await conn.fetch('''
             SELECT name, is_main 
             FROM users 
-            WHERE is_tracking = TRUE AND name NOT ILIKE 'unknown'
+            WHERE is_tracking = TRUE AND is_hidden_if_unresponsive = FALSE AND name NOT ILIKE 'unknown'
             AND user_id NOT IN (SELECT user_id FROM attendance WHERE target_date = $1 AND is_test = $2)
             ORDER BY is_main DESC, name ASC
         ''', today, is_test)
