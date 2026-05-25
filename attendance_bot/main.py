@@ -500,6 +500,61 @@ async def check_command(ctx):
     
     await ctx.send("\n".join(lines))
 
+@bot.command(name="db_info")
+async def db_info_command(ctx):
+    """【管理者用】DBの統計情報を表示します"""
+    async with pool.acquire() as conn:
+        user_count = await conn.fetchval('SELECT count(*) FROM users')
+        tracking_count = await conn.fetchval('SELECT count(*) FROM users WHERE is_tracking = TRUE')
+        main_count = await conn.fetchval('SELECT count(*) FROM users WHERE is_main = TRUE')
+        event_count = await conn.fetchval('SELECT count(*) FROM events')
+        today = datetime.datetime.now(JST).date()
+        today_attendance = await conn.fetchval('SELECT count(*) FROM attendance WHERE target_date = $1', today)
+
+    msg = (
+        "**🗄️ データベース統計情報**\n"
+        f"┣ 総ユーザー数: {user_count}名\n"
+        f"┣ 追跡対象ユーザー: {tracking_count}名\n"
+        f"┣ メインメンバー: {main_count}名\n"
+        f"┣ 登録イベント数: {event_count}件\n"
+        f"┗ 本日の回答数: {today_attendance}件"
+    )
+    await ctx.send(msg)
+
+@bot.command(name="sql")
+async def sql_command(ctx, *, query: str):
+    """【管理者専用】SQLを直接実行します"""
+    # 特定のユーザーID（管理者）のみ実行可能にする
+    if ctx.author.id != 1082889857052983366:
+        await ctx.send("❌ このコマンドを実行する権限がありません。")
+        return
+
+    async with pool.acquire() as conn:
+        try:
+            if query.strip().lower().startswith("select"):
+                rows = await conn.fetch(query)
+                if not rows:
+                    await ctx.send("結果は0件でした。")
+                    return
+                
+                # 結果を整形して送信
+                headers = rows[0].keys()
+                header_line = " | ".join(headers)
+                lines = [header_line, "-" * len(header_line)]
+                for row in rows[:10]: # 最大10件
+                    lines.append(" | ".join(str(v) for v in row.values()))
+                
+                result_text = "\n".join(lines)
+                if len(rows) > 10:
+                    result_text += f"\n... (残り {len(rows)-10} 件)"
+                
+                await ctx.send(f"```\n{result_text}\n```")
+            else:
+                result = await conn.execute(query)
+                await ctx.send(f"✅ 実行完了: `{result}`")
+        except Exception as e:
+            await ctx.send(f"❌ SQLエラー: `{e}`")
+
 @bot.command(name="ping")
 async def ping_command(ctx):
     """動作確認用コマンド"""
