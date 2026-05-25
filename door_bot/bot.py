@@ -262,7 +262,21 @@ async def network(ctx):
     
     try:
         import speedtest
-...
+        
+        # 非同期実行のためにスレッドで実行
+        loop = asyncio.get_event_loop()
+        def run_speedtest():
+            s = speedtest.Speedtest()
+            s.get_best_server()
+            s.download()
+            s.upload()
+            return s.results.dict()
+            
+        data = await loop.run_in_executor(None, run_speedtest)
+        
+        download = data['download'] / 1_000_000  # Mbps
+        upload = data['upload'] / 1_000_000      # Mbps
+        ping = data['ping']
         server = data['server']['sponsor']
         location = data['server']['name']
         
