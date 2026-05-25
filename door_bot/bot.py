@@ -224,33 +224,51 @@ async def volume(ctx, value: float):
 async def ping(ctx):
     await ctx.send("Pong! 🏓")
 
+async def get_connection_info():
+    """現在の接続方式（Ethernet/Wi-Fi）とSSIDを取得します"""
+    try:
+        # nmcliを使ってアクティブな接続を確認
+        cmd = "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device"
+        process = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, _ = await process.communicate()
+        lines = stdout.decode().strip().split('\n')
+        
+        active_conn = "不明"
+        for line in lines:
+            parts = line.split(':')
+            if len(parts) >= 3 and parts[2] == "connected":
+                dev, dev_type, _, conn_name = parts
+                if dev_type == "wifi":
+                    active_conn = f"Wi-Fi ({conn_name})"
+                elif dev_type == "ethernet":
+                    active_conn = f"Ethernet ({conn_name})"
+                else:
+                    active_conn = f"{dev_type} ({conn_name})"
+                break
+        return active_conn
+    except Exception:
+        return "取得失敗"
+
 @bot.command()
 async def network(ctx):
-    """回線速度を計測します (時間がかかります)"""
-    await ctx.send("🌐 ネットワーク速度を計測中です。約30秒ほどお待ちください...")
+    """回線速度と接続経路を計測します"""
+    await ctx.send("🌐 ネットワーク状況を確認中です。約30秒ほどお待ちください...")
+    
+    conn_info = await get_connection_info()
     
     try:
         import speedtest
-        
-        # 非同期実行のためにスレッドで実行
-        loop = asyncio.get_event_loop()
-        def run_speedtest():
-            s = speedtest.Speedtest()
-            s.get_best_server()
-            s.download()
-            s.upload()
-            return s.results.dict()
-            
-        data = await loop.run_in_executor(None, run_speedtest)
-        
-        download = data['download'] / 1_000_000  # Mbps
-        upload = data['upload'] / 1_000_000      # Mbps
-        ping = data['ping']
+...
         server = data['server']['sponsor']
         location = data['server']['name']
         
         msg = (
             "**📶 回線状況レポート**\n"
+            f"┣ 接続経路: `{conn_info}`\n"
             f"┣ ダウンロード: `{download:.2f} Mbps`\n"
             f"┣ アップロード: `{upload:.2f} Mbps`\n"
             f"┣ ピング: `{ping:.2f} ms`\n"
@@ -258,7 +276,7 @@ async def network(ctx):
         )
         await ctx.send(msg)
     except Exception as e:
-        await ctx.send(f"❌ エラーが発生しました: {e}\n(speedtest-cliがインストールされていない可能性があります)")
+        await ctx.send(f"❌ エラーが発生しました: {e}\n(接続経路: {conn_info})")
 
 @bot.remove_command("help")
 @bot.command()

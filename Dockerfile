@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasound2 \
     fontconfig \
     fonts-noto-cjk \
+    iproute2 \
+    network-manager \
     && rm -rf /var/lib/apt/lists/*
 
 
