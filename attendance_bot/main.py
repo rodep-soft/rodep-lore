@@ -282,9 +282,10 @@ async def send_attendance_message(channel, is_test=False):
     countdown_text = await get_events_countdown_text()
     
     question = "会議に参加しますか？" if is_saturday else "今日の活動に参加しますか？"
+    note = "\n\n⚠️ **回答できない場合や「未回答」に残る場合は、このチャンネルで連絡してください！**"
     
     await channel.send(
-        f"{prefix}{countdown_text}{question}",
+        f"{prefix}{countdown_text}{question}{note}",
         view=view
     )
 
@@ -671,7 +672,8 @@ async def help_command(ctx):
         "┣ `!test_send` : 今すぐ出欠確認を送信 (本日のデータはリセット)\n"
         "┣ `!test_aggregate` : 今すぐ集計結果の画像を送信\n"
         "┗ `!ping` : Botの生存確認\n\n"
-        "💡 *Tip: 朝8時のボタンを1度でも押すと自動的にメンバー登録されます。*"
+        "💡 *Tip: 朝8時のボタンを1度でも押すと自動的にメンバー登録されます。*\n"
+        "⚠️ *ボタンで回答できない場合や「未回答」リストに残る場合は、このチャンネルで直接連絡してください。*"
     )
     await ctx.send(help_text)
 
