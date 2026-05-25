@@ -7,6 +7,8 @@ import logging
 import random
 import requests
 import subprocess
+import asyncio
+import json
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
@@ -222,6 +224,42 @@ async def volume(ctx, value: float):
 async def ping(ctx):
     await ctx.send("Pong! 🏓")
 
+@bot.command()
+async def network(ctx):
+    """回線速度を計測します (時間がかかります)"""
+    await ctx.send("🌐 ネットワーク速度を計測中です。約30秒ほどお待ちください...")
+    
+    try:
+        # speedtest-cliを外部スクリプトとして実行 (インストール不要な1ファイル版を使用)
+        cmd = "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 - --json"
+        process = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        
+        if process.returncode == 0:
+            data = json.loads(stdout.decode())
+            download = data['download'] / 1_000_000  # Mbps
+            upload = data['upload'] / 1_000_000      # Mbps
+            ping = data['ping']
+            server = data['server']['sponsor']
+            location = data['server']['name']
+            
+            msg = (
+                "**📶 回線状況レポート**\n"
+                f"┣ ダウンロード: `{download:.2f} Mbps`\n"
+                f"┣ アップロード: `{upload:.2f} Mbps`\n"
+                f"┣ ピング: `{ping:.2f} ms`\n"
+                f"┗ 測定サーバー: `{server} ({location})`"
+            )
+            await ctx.send(msg)
+        else:
+            await ctx.send(f"❌ 計測に失敗しました: {stderr.decode()}")
+    except Exception as e:
+        await ctx.send(f"❌ エラーが発生しました: {e}")
+
 @bot.remove_command("help")
 @bot.command()
 async def help(ctx):
@@ -235,6 +273,7 @@ async def help(ctx):
         "┗ `!tsumugi [文章]` : 春日部つむぎが喋ります\n\n"
         "⚙️ **設定・確認**\n"
         "┣ `!status` : ドアの状態や音量設定を表示\n"
+        "┣ `!network` : 部室の回線速度を計測\n"
         "┣ `!volume [0.0-1.0]` : 音量を調整します\n"
         "┗ `!ping` : Botの生存確認\n\n"
         "💡 *センサーがドアの開閉を検知すると、自動で挨拶します。*"
