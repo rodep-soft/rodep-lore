@@ -313,7 +313,7 @@ async def send_attendance_summary(channel, is_test=False):
         for row in rows:
             name = row['name']
             if row['is_main']:
-                name += " (M)"
+                name = "(M) " + name
             status = row['status']
             if status in categories:
                 categories[status].append(name)
@@ -333,7 +333,7 @@ async def send_attendance_summary(channel, is_test=False):
         for row in missing_rows:
             name = row['name']
             if row['is_main']:
-                name += " (M)"
+                name = "(M) " + name
             categories["未回答者"].append(name)
 
     # Image configuration - Vertical mobile-friendly layout
