@@ -175,25 +175,21 @@ async def say(ctx, *, text: str):
     character = random.choice(SPEECH_PATTERNS)
     pattern = random.choice(character["patterns"])
     speak_zunda(text, speaker_id=pattern["id"])
-    await ctx.send(f"📢 {character['name']}が喋りました: 「{text}」")
 
 @bot.command()
 async def zunda(ctx, *, text: str):
     """ずんだもんの声で喋ります"""
     speak_zunda(text, speaker_id=3)
-    await ctx.send(f"📢 ずんだもん「{text}なのだ」")
 
 @bot.command()
 async def metan(ctx, *, text: str):
     """四国めたんの声で喋ります"""
     speak_zunda(text, speaker_id=2)
-    await ctx.send(f"📢 四国めたん「{text}わよ」")
 
 @bot.command()
 async def tsumugi(ctx, *, text: str):
     """春日部つむぎの声で喋ります"""
     speak_zunda(text, speaker_id=8)
-    await ctx.send(f"📢 春日部つむぎ「{text}だよ」")
 
 @bot.command()
 async def status(ctx):
