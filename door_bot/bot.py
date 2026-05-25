@@ -225,33 +225,38 @@ async def ping(ctx):
     await ctx.send("Pong! 🏓")
 
 async def get_connection_info():
-    """現在の接続方式（Ethernet/Wi-Fi）とSSIDを取得します"""
+    """現在の接続方式（Ethernet/Wi-Fi）を取得します (Docker内部用)"""
     try:
-        # nmcliを使ってアクティブな接続を確認
-        cmd = "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device"
+        # デフォルトルートのインターフェースを取得
+        cmd = "ip route show default"
         process = await asyncio.create_subprocess_shell(
             cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
         stdout, _ = await process.communicate()
-        lines = stdout.decode().strip().split('\n')
+        output = stdout.decode().strip()
         
-        active_conn = "不明"
-        for line in lines:
-            parts = line.split(':')
-            if len(parts) >= 3 and parts[2] == "connected":
-                dev, dev_type, _, conn_name = parts
-                if dev_type == "wifi":
-                    active_conn = f"Wi-Fi ({conn_name})"
-                elif dev_type == "ethernet":
-                    active_conn = f"Ethernet ({conn_name})"
-                else:
-                    active_conn = f"{dev_type} ({conn_name})"
-                break
-        return active_conn
-    except Exception:
-        return "取得失敗"
+        if not output:
+            return "不明"
+            
+        # 出力例: default via 192.168.1.1 dev enp0s31f6 proto dhcp src 192.168.1.100 metric 100 
+        parts = output.split()
+        if "dev" in parts:
+            dev_idx = parts.index("dev")
+            dev_name = parts[dev_idx + 1]
+            
+            # インターフェース名から種類を推測
+            if dev_name.startswith("wl") or dev_name.startswith("wpan"):
+                return f"Wi-Fi ({dev_name})"
+            elif dev_name.startswith("en") or dev_name.startswith("eth"):
+                return f"Ethernet ({dev_name})"
+            else:
+                return f"その他 ({dev_name})"
+                
+        return "不明"
+    except Exception as e:
+        return f"取得失敗 ({e})"
 
 @bot.command()
 async def network(ctx):
