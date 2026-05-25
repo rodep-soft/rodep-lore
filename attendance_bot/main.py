@@ -304,7 +304,7 @@ async def send_attendance_summary(channel, is_test=False):
         # If it's a test run, we query records marked as is_test=TRUE
         # If it's a real run, we query records marked as is_test=FALSE
         rows = await conn.fetch('''
-            SELECT u.name, a.status 
+            SELECT u.name, u.is_main, a.status 
             FROM attendance a 
             JOIN users u ON a.user_id = u.user_id 
             WHERE a.target_date = $1 AND a.is_test = $2
@@ -312,6 +312,8 @@ async def send_attendance_summary(channel, is_test=False):
         
         for row in rows:
             name = row['name']
+            if row['is_main']:
+                name += " (M)"
             status = row['status']
             if status in categories:
                 categories[status].append(name)
@@ -321,15 +323,18 @@ async def send_attendance_summary(channel, is_test=False):
                 
         # Calculate non-respondents
         missing_rows = await conn.fetch('''
-            SELECT name 
+            SELECT name, is_main 
             FROM users 
             WHERE is_tracking = TRUE AND name NOT ILIKE 'unknown'
             AND user_id NOT IN (SELECT user_id FROM attendance WHERE target_date = $1 AND is_test = $2)
-            ORDER BY name ASC
+            ORDER BY is_main DESC, name ASC
         ''', today, is_test)
 
         for row in missing_rows:
-            categories["未回答者"].append(row['name'])
+            name = row['name']
+            if row['is_main']:
+                name += " (M)"
+            categories["未回答者"].append(name)
 
     # Image configuration - Vertical mobile-friendly layout
     width = 720
