@@ -474,6 +474,31 @@ async def clear_tests_command(ctx):
         count = result.split(" ")[1]
     await ctx.send(f"🗑️ {count} 件のテストデータを削除しました。")
 
+@bot.command(name="check")
+async def check_command(ctx):
+    """【確認用】本日の回答状況をテキストで表示します"""
+    today = datetime.datetime.now(JST).date()
+    
+    async with pool.acquire() as conn:
+        rows = await conn.fetch('''
+            SELECT u.name, u.is_main, a.status 
+            FROM attendance a 
+            JOIN users u ON a.user_id = u.user_id 
+            WHERE a.target_date = $1 AND a.is_test = FALSE
+            ORDER BY a.recorded_at ASC
+        ''', today)
+    
+    if not rows:
+        await ctx.send("今日の回答者はまだいません。")
+        return
+    
+    lines = [f"**📊 本日の回答状況 ({today.strftime('%m/%d')})**"]
+    for row in rows:
+        prefix = "(M) " if row['is_main'] else "・"
+        lines.append(f"{prefix}{row['name']} : {row['status']}")
+    
+    await ctx.send("\n".join(lines))
+
 @bot.command(name="ping")
 async def ping_command(ctx):
     """動作確認用コマンド"""
