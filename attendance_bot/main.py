@@ -492,6 +492,19 @@ async def clear_tests_command(ctx):
         count = result.split(" ")[1]
     await ctx.send(f"🗑️ {count} 件のテストデータを削除しました。")
 
+@bot.command(name="test_dm")
+async def test_dm_command(ctx):
+    """【自分専用】リマインドDMの見た目を確認します"""
+    try:
+        await ctx.author.send(
+            f"【出欠確認リマインド】（テスト送信）\n"
+            f"本日の出欠回答が確認できませんでした。\n"
+            f"お手数ですが、テキストまたはBotのボタンで報告をお願いします！"
+        )
+        await ctx.send("✅ あなたのDMにテストメッセージを送信しました！", ephemeral=True)
+    except Exception as e:
+        await ctx.send(f"❌ DMを送信できませんでした（DMがオフになっている可能性があります）。\nエラー: {e}")
+
 @bot.command(name="ping")
 async def ping_command(ctx):
     """動作確認用コマンド"""
