@@ -331,6 +331,29 @@ async def send_attendance_summary(channel, is_test=False):
         for row in missing_rows:
             categories["未回答者"].append(row['name'])
 
+    # Send DM reminders to main members who haven't responded (Only in real runs)
+    if not is_test:
+        async with pool.acquire() as conn:
+            unresponsive_main_members = await conn.fetch('''
+                SELECT user_id, name 
+                FROM users 
+                WHERE is_main = TRUE AND is_tracking = TRUE
+                AND user_id NOT IN (SELECT user_id FROM attendance WHERE target_date = $1 AND is_test = FALSE)
+            ''', today)
+            
+            for member_row in unresponsive_main_members:
+                user_id = member_row['user_id']
+                try:
+                    user = await bot.fetch_user(user_id)
+                    if user:
+                        await user.send(
+                            f"【出欠確認リマインド】\n"
+                            f"本日の出欠回答が確認できませんでした。\n"
+                            f"お手数ですが、テキストまたはBotのボタンで報告をお願いします！"
+                        )
+                except Exception as e:
+                    print(f"Could not send DM to {member_row['name']} ({user_id}): {e}")
+
     # Image configuration - Vertical mobile-friendly layout
     width = 720
     header_height = 140
