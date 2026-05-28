@@ -541,6 +541,34 @@ async def check_command(ctx):
     
     await ctx.send("\n".join(lines))
 
+@bot.command(name="set_status")
+@commands.has_permissions(manage_messages=True)
+async def set_status_command(ctx, member: discord.Member, status: str):
+    """【管理者用】指定したユーザーの本日の出欠ステータスを手動で設定します
+    例: !set_status @ユーザー 欠席
+    """
+    allowed_statuses = ["3限終わり", "4限終わり", "5限終わり", "出席", "欠席"]
+    if status not in allowed_statuses:
+        await ctx.send(f"❌ 無効なステータスです。以下から選択してください:\n`{', '.join(allowed_statuses)}`")
+        return
+
+    today = datetime.datetime.now(JST).date()
+    async with pool.acquire() as conn:
+        # Ensure user exists in the DB
+        await conn.execute('''
+            INSERT INTO users (user_id, name) VALUES ($1, $2)
+            ON CONFLICT (user_id) DO UPDATE SET name = EXCLUDED.name
+        ''', member.id, member.display_name)
+        
+        # Update or insert attendance
+        await conn.execute('''
+            INSERT INTO attendance (user_id, target_date, status, is_test)
+            VALUES ($1, $2, $3, FALSE)
+            ON CONFLICT (user_id, target_date) DO UPDATE SET status = EXCLUDED.status
+        ''', member.id, today, status)
+        
+    await ctx.send(f"✅ {member.display_name} さんの本日のステータスを **{status}** に設定しました。")
+
 @bot.command(name="db_info")
 async def db_info_command(ctx):
     """【管理者用】DBの統計情報を表示します"""
