@@ -231,7 +231,7 @@ class AttendanceView(View):
 
 # Scheduled times
 time_8am = datetime.time(hour=8, minute=0, tzinfo=JST)
-time_12pm = datetime.time(hour=12, minute=0, tzinfo=JST)
+time_1230pm = datetime.time(hour=12, minute=30, tzinfo=JST)
 
 @bot.event
 async def on_ready():
@@ -441,38 +441,45 @@ async def send_attendance_summary(channel, is_test=False):
 
 @tasks.loop(time=time_8am)
 async def send_attendance_check():
-    """Sends the attendance check message every day at 8:00 AM JST with retries."""
-    max_retries = 5
-    retry_interval = 60  # seconds
+    """Wait for network and send the attendance check as soon as possible."""
+    trigger_date = datetime.datetime.now(JST).date()
     
-    for attempt in range(max_retries):
+    while True:
+        # Avoid sending yesterday's form if it's already the next day
+        if datetime.datetime.now(JST).date() != trigger_date:
+            print(f"Aborting attendance check for {trigger_date}: Day changed.")
+            return
+
         try:
+            # fetch_channel is more reliable than get_channel after reconnect
             channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
             if channel:
                 await send_attendance_message(channel)
-                print(f"Successfully sent attendance check on attempt {attempt + 1}")
+                print(f"Successfully sent attendance check for {trigger_date}")
                 return
-            else:
-                print(f"Attempt {attempt + 1}: Channel {CHANNEL_ID} not found.")
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed with error: {e}")
-            if attempt < max_retries - 1:
-                await asyncio.sleep(retry_interval)
-            else:
-                print("Max retries reached. Could not send attendance check.")
+            # Probably network error or Discord is down
+            print(f"Attendance check: Waiting for network... ({e})")
+            await asyncio.sleep(60)
 
-@tasks.loop(time=time_12pm)
+@tasks.loop(time=time_1230pm)
 async def aggregate_attendance():
-    """Aggregates attendance data and sends a summary image every day at 12:00 PM JST."""
-    max_retries = 3
-    for attempt in range(max_retries):
+    """Wait for network and send the attendance summary as soon as possible."""
+    trigger_date = datetime.datetime.now(JST).date()
+    
+    while True:
+        if datetime.datetime.now(JST).date() != trigger_date:
+            print(f"Aborting aggregation for {trigger_date}: Day changed.")
+            return
+
         try:
             channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
             if channel:
                 await send_attendance_summary(channel)
+                print(f"Successfully sent summary for {trigger_date}")
                 return
         except Exception as e:
-            print(f"Aggregation attempt {attempt + 1} failed: {e}")
+            print(f"Aggregation: Waiting for network... ({e})")
             await asyncio.sleep(60)
 
 @bot.command(name="send_now")
