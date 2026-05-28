@@ -495,7 +495,7 @@ async def remind_unanswered():
             role = discord.utils.get(guild.roles, name="未回答者")
             if not role:
                 try:
-                    role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインド用一時ロール")
+                    role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインド用一時ロール", mentionable=True)
                 except Exception as e:
                     print(f"Failed to create role: {e}")
                     return
@@ -512,20 +512,20 @@ async def remind_unanswered():
                 print("No unanswered users to remind.")
                 return
 
-            mentions = []
+            has_unanswered = False
             for row in rows:
                 member = guild.get_member(row['user_id'])
                 if member:
                     try:
                         await member.add_roles(role)
-                        mentions.append(member.mention)
+                        has_unanswered = True
                     except Exception as e:
                         print(f"Failed to add role to {member.display_name}: {e}")
 
-            if mentions:
+            if has_unanswered:
                 await channel.send(
                     f"🔔 **【リマインド】**\n"
-                    f"{' '.join(mentions)}\n"
+                    f"{role.mention}\n"
                     f"今日の出欠がまだ未回答です！回答をお願いします！"
                 )
             return
@@ -600,7 +600,7 @@ async def test_remind_command(ctx):
     role = discord.utils.get(guild.roles, name="未回答者")
     if not role:
         try:
-            role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインドテスト用")
+            role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインドテスト用", mentionable=True)
             await ctx.send("✅ 「未回答者」ロールを作成しました。")
         except Exception as e:
             await ctx.send(f"❌ ロール作成に失敗しました: {e}")
@@ -610,8 +610,8 @@ async def test_remind_command(ctx):
         await ctx.author.add_roles(role)
         await ctx.send(
             f"🔔 **【テスト・リマインド】**\n"
-            f"{ctx.author.mention}\n"
-            f"これはテスト通知です。出欠ボタンを押すとこのロールが消えることを確認してください！"
+            f"{role.mention}\n"
+            f"これはテスト通知です。ロールへのメンションが届いているか確認してください！"
         )
     except Exception as e:
         await ctx.send(f"❌ ロール付与に失敗しました（Botより高い権限の役職を持っている可能性があります）: {e}")
