@@ -207,6 +207,15 @@ class AttendanceView(View):
                 ON CONFLICT (user_id, target_date) DO UPDATE SET status = EXCLUDED.status, recorded_at = CURRENT_TIMESTAMP, is_test = EXCLUDED.is_test
             ''', user_id, today, status, self.is_test)
             
+        # Try to remove "未回答者" role if it exists
+        if not self.is_test and interaction.guild:
+            role = discord.utils.get(interaction.guild.roles, name="未回答者")
+            if role and role in interaction.user.roles:
+                try:
+                    await interaction.user.remove_roles(role)
+                except Exception:
+                    pass
+
         await interaction.response.send_message(f"「{status}」で出欠を登録しました！", ephemeral=True)
 
     @discord.ui.button(label="出席", style=discord.ButtonStyle.primary, custom_id="attend_sat")
@@ -231,6 +240,7 @@ class AttendanceView(View):
 
 # Scheduled times
 time_8am = datetime.time(hour=8, minute=0, tzinfo=JST)
+time_12pm = datetime.time(hour=12, minute=0, tzinfo=JST)
 time_1230pm = datetime.time(hour=12, minute=30, tzinfo=JST)
 
 @bot.event
@@ -248,6 +258,8 @@ async def on_ready():
         send_attendance_check.start()
     if not aggregate_attendance.is_running():
         aggregate_attendance.start()
+    if not remind_unanswered.is_running():
+        remind_unanswered.start()
 
 async def get_events_countdown_text():
     today = datetime.datetime.now(JST).date()
@@ -462,6 +474,66 @@ async def send_attendance_check():
             print(f"Attendance check: Waiting for network... ({e})")
             await asyncio.sleep(60)
 
+@tasks.loop(time=time_12pm)
+async def remind_unanswered():
+    """Mention and grant a temporary role to users who haven't responded by 12:00 PM."""
+    trigger_date = datetime.datetime.now(JST).date()
+    
+    while True:
+        if datetime.datetime.now(JST).date() != trigger_date:
+            return
+
+        try:
+            channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
+            if not channel:
+                await asyncio.sleep(60)
+                continue
+
+            guild = channel.guild
+            
+            # Find or create "未回答者" role
+            role = discord.utils.get(guild.roles, name="未回答者")
+            if not role:
+                try:
+                    role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインド用一時ロール")
+                except Exception as e:
+                    print(f"Failed to create role: {e}")
+                    return
+
+            # Identify unanswered users
+            async with pool.acquire() as conn:
+                rows = await conn.fetch('''
+                    SELECT u.user_id FROM users u 
+                    LEFT JOIN attendance a ON u.user_id = a.user_id AND a.target_date = $1 AND a.is_test = FALSE 
+                    WHERE u.is_tracking = TRUE AND a.user_id IS NULL
+                ''', trigger_date)
+            
+            if not rows:
+                print("No unanswered users to remind.")
+                return
+
+            mentions = []
+            for row in rows:
+                member = guild.get_member(row['user_id'])
+                if member:
+                    try:
+                        await member.add_roles(role)
+                        mentions.append(member.mention)
+                    except Exception as e:
+                        print(f"Failed to add role to {member.display_name}: {e}")
+
+            if mentions:
+                await channel.send(
+                    f"🔔 **【リマインド】**\n"
+                    f"{' '.join(mentions)}\n"
+                    f"今日の出欠がまだ未回答です！回答をお願いします！"
+                )
+            return
+
+        except Exception as e:
+            print(f"Remind unanswered: Waiting for network... ({e})")
+            await asyncio.sleep(60)
+
 @tasks.loop(time=time_1230pm)
 async def aggregate_attendance():
     """Wait for network and send the attendance summary as soon as possible."""
@@ -476,7 +548,17 @@ async def aggregate_attendance():
             channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
             if channel:
                 await send_attendance_summary(channel)
-                print(f"Successfully sent summary for {trigger_date}")
+                
+                # Cleanup: Remove "未回答者" role from everyone
+                role = discord.utils.get(channel.guild.roles, name="未回答者")
+                if role:
+                    for member in role.members:
+                        try:
+                            await member.remove_roles(role)
+                        except Exception:
+                            pass
+                
+                print(f"Successfully sent summary and cleaned up roles for {trigger_date}")
                 return
         except Exception as e:
             print(f"Aggregation: Waiting for network... ({e})")
@@ -643,6 +725,8 @@ async def resume_command(ctx):
         send_attendance_check.start()
     if not aggregate_attendance.is_running():
         aggregate_attendance.start()
+    if not remind_unanswered.is_running():
+        remind_unanswered.start()
     await ctx.send("自動出欠確認と集計のスケジュールを再開しました。")
 
 @bot.command(name="status")
@@ -804,7 +888,8 @@ async def help_command(ctx):
         "┗ `!clear_tests` : DB内のテストデータを一括削除\n\n"
         "💡 **自動配信スケジュール**\n"
         "・08:00 : 出欠確認フォーム送信 (ネット未接続時は回復まで待機)\n"
-        "・12:30 : 本日の出欠集計結果を送信\n\n"
+        "・12:00 : 未回答者へのメンションと一時ロール付与\n"
+        "・12:30 : 本日の出欠集計結果を送信 (一時ロールを自動削除)\n\n"
         "⚠️ *ボタンで回答できない場合は、このチャンネルで直接連絡してください。*"
     )
     await ctx.send(help_text)
