@@ -441,17 +441,45 @@ async def send_attendance_summary(channel, is_test=False):
 
 @tasks.loop(time=time_8am)
 async def send_attendance_check():
-    """Sends the attendance check message every day at 8:00 AM JST."""
-    channel = bot.get_channel(CHANNEL_ID)
-    if channel:
-        await send_attendance_message(channel)
+    """Sends the attendance check message every day at 8:00 AM JST with retries."""
+    max_retries = 5
+    retry_interval = 60  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
+            if channel:
+                await send_attendance_message(channel)
+                print(f"Successfully sent attendance check on attempt {attempt + 1}")
+                return
+            else:
+                print(f"Attempt {attempt + 1}: Channel {CHANNEL_ID} not found.")
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed with error: {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(retry_interval)
+            else:
+                print("Max retries reached. Could not send attendance check.")
 
 @tasks.loop(time=time_12pm)
 async def aggregate_attendance():
     """Aggregates attendance data and sends a summary image every day at 12:00 PM JST."""
-    channel = bot.get_channel(CHANNEL_ID)
-    if channel:
-        await send_attendance_summary(channel)
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            channel = bot.get_channel(CHANNEL_ID) or await bot.fetch_channel(CHANNEL_ID)
+            if channel:
+                await send_attendance_summary(channel)
+                return
+        except Exception as e:
+            print(f"Aggregation attempt {attempt + 1} failed: {e}")
+            await asyncio.sleep(60)
+
+@bot.command(name="send_now")
+async def send_now_command(ctx):
+    """【本番用】今すぐ出欠確認フォームを送信します"""
+    await send_attendance_message(ctx.channel, is_test=False)
+    await ctx.send("✅ 本番用の出欠確認フォームを送信しました。")
 
 @bot.command(name="test_send")
 async def test_send_command(ctx):
@@ -466,6 +494,12 @@ async def test_send_command(ctx):
 async def test_aggregate_command(ctx):
     """出欠集計結果のテスト送信（テストデータを使用します）"""
     await send_attendance_summary(ctx.channel, is_test=True)
+
+@bot.command(name="aggregate_now")
+async def aggregate_now_command(ctx):
+    """【本番用】今すぐ出欠集計結果を送信します"""
+    await send_attendance_summary(ctx.channel, is_test=False)
+    await ctx.send("✅ 本番用の出欠集計結果を送信しました。")
 
 @bot.command(name="clear_tests")
 async def clear_tests_command(ctx):
