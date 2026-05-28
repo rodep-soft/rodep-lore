@@ -590,6 +590,51 @@ async def aggregate_now_command(ctx):
     await send_attendance_summary(ctx.channel, is_test=False)
     await ctx.send("✅ 本番用の出欠集計結果を送信しました。")
 
+@bot.command(name="test_remind")
+@commands.has_permissions(manage_messages=True)
+async def test_remind_command(ctx):
+    """【テスト用】自分自身に「未回答者」ロールを付与してリマインドをテストします"""
+    await ctx.send(f"⏳ {ctx.author.display_name} さんを対象にリマインドのテストを実行します...")
+    
+    guild = ctx.guild
+    role = discord.utils.get(guild.roles, name="未回答者")
+    if not role:
+        try:
+            role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインドテスト用")
+            await ctx.send("✅ 「未回答者」ロールを作成しました。")
+        except Exception as e:
+            await ctx.send(f"❌ ロール作成に失敗しました: {e}")
+            return
+
+    try:
+        await ctx.author.add_roles(role)
+        await ctx.send(
+            f"🔔 **【テスト・リマインド】**\n"
+            f"{ctx.author.mention}\n"
+            f"これはテスト通知です。出欠ボタンを押すとこのロールが消えることを確認してください！"
+        )
+    except Exception as e:
+        await ctx.send(f"❌ ロール付与に失敗しました（Botより高い権限の役職を持っている可能性があります）: {e}")
+
+@bot.command(name="clear_remind")
+@commands.has_permissions(manage_messages=True)
+async def clear_remind_command(ctx):
+    """【管理者用】全員から「未回答者」ロールを削除します"""
+    role = discord.utils.get(ctx.guild.roles, name="未回答者")
+    if not role:
+        await ctx.send("「未回答者」ロールは存在しません。")
+        return
+
+    count = 0
+    for member in role.members:
+        try:
+            await member.remove_roles(role)
+            count += 1
+        except Exception:
+            pass
+    
+    await ctx.send(f"✅ {count} 名から「未回答者」ロールを削除しました。")
+
 @bot.command(name="clear_tests")
 async def clear_tests_command(ctx):
     """DB内のすべてのテストデータを削除します"""
@@ -883,9 +928,12 @@ async def help_command(ctx):
         "┣ `!status` : 自動配信の稼働状況を確認\n"
         "┣ `!ping` : 応答確認\n"
         "┣ `!db_info` : DB統計情報の表示\n"
-        "┣ `!test_send` : テスト用フォーム送信\n"
-        "┣ `!test_aggregate` : テスト用集計結果送信\n"
-        "┗ `!clear_tests` : DB内のテストデータを一括削除\n\n"
+        ┣ `!test_send` : テスト用フォーム送信\n"
+        ┣ `!test_aggregate` : テスト用集計結果送信\n"
+        ┣ `!test_remind` : 未回答者リマインドのテスト実行\n"
+        ┣ `!clear_remind` : 未回答者ロールを全員から削除\n"
+        ┗ `!clear_tests` : DB内のテストデータを一括削除\n\n"
+
         "💡 **自動配信スケジュール**\n"
         "・08:00 : 出欠確認フォーム送信 (ネット未接続時は回復まで待機)\n"
         "・12:00 : 未回答者へのメンションと一時ロール付与\n"
