@@ -24,13 +24,7 @@ class FashionClock(QWidget):
         self.timeLabel = QLabel(self)
         self.timeLabel.setAlignment(Qt.AlignCenter)
         
-        # Secondary Countdown Label
-        self.countdownLabel = QLabel(self)
-        self.countdownLabel.setAlignment(Qt.AlignCenter)
-        self.countdownLabel.hide() # Hidden by default
-        
         self.layout.addWidget(self.timeLabel)
-        self.layout.addWidget(self.countdownLabel)
         self.layout.addStretch(1)
         self.setLayout(self.layout)
         
@@ -52,31 +46,16 @@ class FashionClock(QWidget):
         
         # 2. Logic for Modes
         is_night = hour >= 22 or hour < 6
-        is_countdown = hour == 21 # 21:00 to 22:00
         
         if is_night:
             # Red Mode
             self.timeLabel.setStyleSheet("color: #ff3333; font-family: 'Manrope'; font-weight: bold; font-size: 300pt;")
-            self.countdownLabel.hide()
         else:
-            # Day Mode & Countdown Mode both use Colorful Clock
+            # Day Mode: Colorful Gradient Simulation
             self.color_angle = (self.color_angle + 2) % 360
             color = QColor.fromHsv(self.color_angle, 200, 255)
             hex_color = color.name()
             self.timeLabel.setStyleSheet(f"color: {hex_color}; font-family: 'Manrope'; font-weight: bold; font-size: 300pt;")
-            
-            if is_countdown:
-                # Add the 22:00 countdown label
-                target = QTime(22, 0, 0)
-                diff = now.secsTo(target)
-                mins = diff // 60
-                secs = diff % 60
-                countdown_text = f"22:00 IN {mins:02}:{secs:02}"
-                self.countdownLabel.setText(countdown_text)
-                self.countdownLabel.setStyleSheet("color: #ffffff; font-family: 'Manrope'; font-weight: bold; font-size: 40pt; opacity: 0.7;")
-                self.countdownLabel.show()
-            else:
-                self.countdownLabel.hide()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
