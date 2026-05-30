@@ -19,7 +19,7 @@ cat > "$DESKTOP_DIR/mega-clock.desktop" <<EOF
 [Desktop Entry]
 Name=Mega Clock
 Comment=A high-fashion massive digital clock
-Exec=python3 $HOME/rodep-lore/scripts/fashion_clock.py
+Exec=python3 $HOME/rodep-lore/scripts/clock/fashion_clock.py
 Icon=preferences-system-time
 Terminal=false
 Type=Application
@@ -43,7 +43,7 @@ After=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 $HOME/rodep-lore/scripts/fashion_clock.py
+ExecStart=/usr/bin/python3 $HOME/rodep-lore/scripts/clock/fashion_clock.py
 Restart=always
 RestartSec=5
 Environment=DISPLAY=:0
