@@ -7,7 +7,7 @@ echo "🚀 Starting Mega Clock deployment..."
 
 # 1. Install Dependencies
 echo "📦 Installing system dependencies..."
-sudo apt update
+sudo apt update || echo "⚠️ Warning: apt update had some issues, but continuing..."
 sudo apt install -y python3-pyqt5 fonts-manrope fonts-inter fonts-montserrat
 
 # 2. Setup GNOME Desktop Entry
