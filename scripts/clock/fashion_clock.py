@@ -18,6 +18,7 @@ class FashionClock(QWidget):
 
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addStretch(1)
         
         # Main Clock Label
         self.timeLabel = QLabel(self)
@@ -30,6 +31,7 @@ class FashionClock(QWidget):
         
         self.layout.addWidget(self.timeLabel)
         self.layout.addWidget(self.countdownLabel)
+        self.layout.addStretch(1)
         self.setLayout(self.layout)
         
         # Timer for updates
