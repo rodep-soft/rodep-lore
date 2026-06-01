@@ -17,19 +17,19 @@
 
 の3つのパラメータで表される. よって状態は
 
-$$
+```{math}
 \vec{v} = \begin{pmatrix} v_x \\ v_y \\ w_z \end{pmatrix}
-$$
+```
 
 の3自由度.
 
 3輪オムニの場合、
 
-$$
+```{math}
 \begin{pmatrix} W1 \\ W2 \\ W3 \end{pmatrix}
 = A
 \begin{pmatrix} v_x \\ v_y \\ w_z \end{pmatrix}
-$$
+```
 
 
 
