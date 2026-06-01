@@ -15,10 +15,13 @@ author = 'Tatsuki Yano'
 
 extensions = [
     "myst_parser",
+    "sphinx.ext.mathjax",
 ]
 
 myst_enable_extensions = [
     #"colcon_fence",
+    "dollarmath",
+    "amsmath",
     "deflist",
     "tasklist",
 ]
