@@ -1,6 +1,6 @@
-# Wiki
+# lazytatzv's Lab Notes
 
-知見を共有するためのページ.
+個人的な知見を共有していく為のサイト.
 
 ```{toctree}
 :maxdepth: 1
@@ -11,7 +11,7 @@ linux/intro
 ```
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :caption: Programming
 
 programming/languages
@@ -20,10 +20,11 @@ programming/discord_bot
 ```
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :caption: Linux:
 
 linux/cli/intro_to_cli
+linux/cli/package_manager
 linux/networking/mesh_wifi
 ```
 
