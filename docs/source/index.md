@@ -43,3 +43,10 @@ tools/docker/intro_to_compose
 tools/git/clone
 
 ```
+
+```{toctree}
+:maxdepth: 1
+:caption: Control:
+
+control/kinematics/omni
+```
