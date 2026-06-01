@@ -8,10 +8,16 @@
 
 test
 linux/intro
-docker/intro
-programming/languages
 ```
 
+```{toctree}
+:maxdepth: 2
+:caption: Programming
+
+programming/languages
+programming/discord_bot
+
+```
 
 ```{toctree}
 :maxdepth: 2
@@ -25,14 +31,14 @@ linux/networking/mesh_wifi
 :maxdepth: 1
 :caption: Docker:
 
-docker/intro_to_docker
-docker/intro_to_compose
+tools/docker/intro_to_docker
+tools/docker/intro_to_compose
 ```
 
 ```{toctree}
 :maxdepth: 1
 :caption: Git:
 
-git/clone
+tools/git/clone
 
 ```

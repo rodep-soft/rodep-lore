@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Wiki'
-copyright = '2025, Tatsuki Yano'
+copyright = '2026, Tatsuki Yano'
 author = 'Tatsuki Yano'
 
 # -- General configuration ---------------------------------------------------
