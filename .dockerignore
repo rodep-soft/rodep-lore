@@ -1,0 +1,20 @@
+.git
+.venv
+.python-version
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.db
+.pytest_cache
+.coverage
+htmlcov
+docs/build
+*.bak
+# uv.lock
+# uv.lockはsyncに使いたいので除外しないほうがいいかも？
+# いや、Dockerfileで個別にCOPYしてるから大丈夫。
+# でも COPY . . で上書きされる。
+# 開発中は uv.lock が変わることもあるので、含めておいたほうがいいか。
+# とりあえず .git と .venv さえ除外すればかなり速くなる。

@@ -1,12 +1,12 @@
 .venv/
+**/.venv/
 
-docs/build
+docs/build/
 
-bot/.env
-bot/.pio/
+**/.pio/
+**/.env
 
 __pycache__/
+**/*.bak
 .pytest_cache/
 .ruff_cache/
-.env
-.env

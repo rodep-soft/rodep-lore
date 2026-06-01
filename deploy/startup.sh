@@ -14,7 +14,8 @@ docker compose stop door_bot pio || true
 # これが成功しない限り次へ進まない
 echo "Step 1: Uploading Arduino firmware..."
 export DOCKER_BUILDKIT=1
-docker compose build --build-arg BUILDKIT_INLINE_CACHE=1 pio
+# ビルドを必須にすることで最新の状態を維持
+docker compose up --build pio
 
 # 3. インターバル（OSのシリアルポート解放待ち）
 echo "Waiting for serial port to stabilize..."
@@ -22,11 +23,14 @@ sleep 2
 
 # 4. 常駐Botの起動
 # systemdで管理する場合は run、バックグラウンドにするなら up -d
-echo "Step 2: Starting Discord Monitoring Bot..."
+echo "Step 2: Starting Database and Discord Monitoring Bot..."
 #docker compose run -d --rm bot
-docker compose build door_bot attendance_bot #simulator
-docker compose --profile setup up -d door_bot attendance_bot #simulator
+# ビルドと起動を同時に行い、最新環境を保証
+docker compose --profile setup up -d --build db door_bot attendance_bot
+echo "Waiting for database to be ready..."
+sleep 3
 docker compose --profile voicebox up -d voicebox
+
 
 # 5. シミュレーターとドキュメントサーバーの起動
 # simulatorにはprofilesがないので、up -d でまとめて起動
