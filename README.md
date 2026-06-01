@@ -2,9 +2,7 @@
 
 ## このrepoについて
 
-個人的なoutput, またbot管理やシミュレータの公開等するための試験的なリポジトリ。
-
-若干教育用の資料も残していきたい。
+個人的な知見を共有し, またbot管理やシミュレータの公開等するための試験的なリポジトリ。
 
 追記, 改善PRは歓迎です.
 
@@ -25,16 +23,17 @@ sphinxを導入しており、mainにpushするとGitHub ActionsのCIが回っ�
 
 ## Docsの書式
 
-myst-parser入れてるのでMarkdownで書ける.
-reStructuredTextをわざわざ書く必要性はない.
+myst-parser入れてるのでrest書かなくてもMarkdownで書ける.
 
-一応どっちでも書ける.
+一応どっちでも書けるが、推奨はMarkdown.
+
+Latex記法も対応済.
 
 ## Localで作業する方法
 
 ### Option1. Dockerを使う
 
-環境差異を潰せるので取り敢えず推奨.
+推奨.
 
 Dockerさえ入っていれば依存を入れる必要は無い.  
 composeで立ち上げてやれば`http://localhost:8080`でアクセスできる.
