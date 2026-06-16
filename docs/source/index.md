@@ -32,8 +32,7 @@ linux/networking/mesh_wifi
 :maxdepth: 1
 :caption: Docker:
 
-tools/docker/intro_to_docker
-tools/docker/intro_to_compose
+tools/docker/intro
 ```
 
 ```{toctree}
