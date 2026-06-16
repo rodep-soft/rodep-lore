@@ -64,6 +64,8 @@ Dockerはkernelをホストと共有するのでアーキテクチャ(amd64/arm6
 
 権限やネットワークで沼りたくないなら`network_mode: host`と`privileged: true`は書いておくべき.
 
+ros2やるなら`stdin_open: true tty: true`も欲しい. Referenceを読むこと.
+
 4. ビルド
 
 ネットワークの速度が遅いところだと非常に時間がかかるので注意.
@@ -284,7 +286,7 @@ $ xhost +local:
 $ nvidia-smi
 ```
 
-`compose.yaml`に書くならこんな感じでコンテナで使える　
+`compose.yaml`に書くならこんな感じでコンテナで使える.(環境によって割と変わるので自分で確認すること)
 
 ```yaml
 services:
