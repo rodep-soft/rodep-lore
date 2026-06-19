@@ -26,6 +26,7 @@ programming/discord_bot
 linux/cli/intro_to_cli
 linux/cli/package_manager
 linux/networking/mesh_wifi
+linux/camera
 ```
 
 ```{toctree}
