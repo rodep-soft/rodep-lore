@@ -206,6 +206,12 @@ async def remind_unanswered():
                 except Exception as e:
                     print(f"Failed to create role: {e}")
                     return
+            else:
+                if not role.mentionable:
+                    try:
+                        await role.edit(mentionable=True)
+                    except Exception as e:
+                        print(f"Failed to make role mentionable: {e}")
 
             async with db.pool.acquire() as conn:
                 rows = await conn.fetch('''
@@ -220,7 +226,18 @@ async def remind_unanswered():
 
             has_unanswered = False
             for row in rows:
-                member = guild.get_member(row['user_id'])
+                user_id = row['user_id']
+                member = guild.get_member(user_id)
+                if not member:
+                    try:
+                        member = await guild.fetch_member(user_id)
+                    except discord.NotFound:
+                        print(f"User {user_id} not found in guild.")
+                        continue
+                    except Exception as e:
+                        print(f"Failed to fetch member {user_id}: {e}")
+                        continue
+
                 if member:
                     try:
                         await member.add_roles(role)
