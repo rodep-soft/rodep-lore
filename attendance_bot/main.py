@@ -311,6 +311,81 @@ async def aggregate_now_command(ctx):
     await send_attendance_summary(ctx.channel, is_test=False)
     await ctx.send("✅ 本番用の出欠集計結果を送信しました。")
 
+@bot.command(name="remind_now")
+@commands.has_permissions(manage_messages=True)
+async def remind_now_command(ctx):
+    """【管理者用】今すぐ未回答者へのリマインドを実行します（ロール付与とメンション送信）"""
+    await ctx.send("⏳ 未回答者への即時リマインド処理を実行します...")
+    
+    guild = ctx.guild
+    channel = ctx.channel
+    today = datetime.datetime.now(JST).date()
+    
+    role = discord.utils.get(guild.roles, name="未回答者")
+    if not role:
+        try:
+            role = await guild.create_role(name="未回答者", color=discord.Color.orange(), reason="リマインド用一時ロール", mentionable=True)
+        except Exception as e:
+            await ctx.send(f"❌ 「未回答者」ロールの作成に失敗しました: {e}")
+            return
+    else:
+        if not role.mentionable:
+            try:
+                await role.edit(mentionable=True)
+            except Exception as e:
+                print(f"Failed to make role mentionable: {e}")
+
+    async with db.pool.acquire() as conn:
+        rows = await conn.fetch('''
+            SELECT u.user_id FROM users u 
+            LEFT JOIN attendance a ON u.user_id = a.user_id AND a.target_date = $1 AND a.is_test = FALSE 
+            WHERE u.is_tracking = TRUE AND a.user_id IS NULL
+        ''', today)
+    
+    if not rows:
+        await ctx.send("✅ 本日の未回答者は一人もいません。")
+        return
+
+    has_unanswered = False
+    fetched_members = []
+    failed_members = []
+    
+    for row in rows:
+        user_id = row['user_id']
+        member = guild.get_member(user_id)
+        if not member:
+            try:
+                member = await guild.fetch_member(user_id)
+            except discord.NotFound:
+                failed_members.append(f"不明なユーザー(ID:{user_id})")
+                continue
+            except Exception as e:
+                failed_members.append(f"フェッチ失敗(ID:{user_id}): {e}")
+                continue
+
+        if member:
+            try:
+                await member.add_roles(role)
+                fetched_members.append(member.display_name)
+                has_unanswered = True
+            except Exception as e:
+                failed_members.append(f"{member.display_name} (ロール付与失敗: {e})")
+
+    status_msg = f"📊 **実行結果:**\n"
+    if fetched_members:
+        status_msg += f"┣ 役職を付与したメンバー: {', '.join(fetched_members)}\n"
+    if failed_members:
+        status_msg += f"┗ 失敗: {', '.join(failed_members)}\n"
+        
+    await ctx.send(status_msg)
+
+    if has_unanswered:
+        await channel.send(
+            f"🔔 **【リマインド】**\n"
+            f"{role.mention}\n"
+            f"今日の出欠がまだ未回答です！回答をお願いします！"
+        )
+
 @bot.command(name="test_remind")
 @commands.has_permissions(manage_messages=True)
 async def test_remind_command(ctx):
@@ -639,6 +714,7 @@ async def help_command(ctx):
         "┃　 ※状態: `3限終わり`, `4限終わり`, `5限終わり`, `出席`, `欠席` \n"
         "┣ `!send_now` : 今すぐ本番用の出欠フォームを送信\n"
         "┣ `!aggregate_now` : 今すぐ本番用の集計結果を送信\n"
+        "┣ `!remind_now` : 今すぐ本番用の未回答者リマインドを実行\n"
         "┣ `!status` : 自動配信の稼働状況を確認\n"
         "┣ `!ping` : 応答確認\n"
         "┣ `!db_info` : DB統計情報の表示\n"
