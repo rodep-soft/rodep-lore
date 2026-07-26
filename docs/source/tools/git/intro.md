@@ -7,6 +7,7 @@ clone, branch, commit, push あたりを雑に困らない程度に置く.
 :maxdepth: 1
 
 clone
+workflow
 ```
 # Intro to git
 

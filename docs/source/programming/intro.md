@@ -7,4 +7,5 @@
 
 languages
 discord_bot
+philosophy
 ```

@@ -7,4 +7,5 @@ ROS2 周りのメモをまとめる場所.
 :maxdepth: 1
 
 discovery_server
+architecture_and_debugging
 ```

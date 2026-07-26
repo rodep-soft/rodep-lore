@@ -7,4 +7,5 @@
 
 docker/intro
 git/intro
+environment_tips
 ```
