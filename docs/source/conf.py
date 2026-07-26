@@ -38,7 +38,7 @@ html_title = "Wiki"
 
 #html_theme = 'alabaster'
 
-# uv add guro
+# uv add furo
 # 他のテーマも使える
 html_theme = "furo"
 

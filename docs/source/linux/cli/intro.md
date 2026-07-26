@@ -1,4 +1,4 @@
-# Intro to CLI
+# CLI
 
 ## CLIとは？
 
@@ -44,5 +44,9 @@ Linux, macOS, WSL2, サーバ、コンテナ、どこでも基本同じコマン
 
 ## CLIは怖くない
 
+```{toctree}
+:maxdepth: 1
 
-
+device_debug
+package_manager
+```

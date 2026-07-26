@@ -1,4 +1,4 @@
-# PackageManager
+# Package Manager
 
 PackageManagerについてのOverview.
 

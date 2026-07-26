@@ -3,58 +3,14 @@
 個人的な知見を共有していく為のサイト.
 
 ```{toctree}
-:maxdepth: 1
+:maxdepth: 2
 :caption: Contents:
 
-test
+overview
 linux/intro
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Programming
-
-programming/languages
-programming/discord_bot
-
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Linux:
-
-linux/cli/intro_to_cli
-linux/cli/package_manager
-linux/networking/mesh_wifi
-linux/camera
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Docker:
-
-tools/docker/intro
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Git:
-
-tools/git/clone
-
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Control:
-
-control/pid
-control/kinematics/omni
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Electronics:
-
-electronics/can
+programming/intro
+tools/intro
+control/intro
+electronics/intro
+ros2/intro
 ```
