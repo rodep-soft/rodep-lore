@@ -4,6 +4,7 @@
 
 | 記事 | 概要 |
 |---|---|
+| [Linux](00_linux_basics.md) | OS(Operating System)の構成要素、Kernelの役割について軽く把握しておくこと. |
 | [カメラの扱い](camera.md) | Linuxは`Everything is a file`の原理に基づき、カメラもデバイスファイルとして扱う. |
 | [Cgroups And Docker](cgroups_and_docker.md) | コンテナ技術を支える基盤技術であるNamespaceとCgroup、そしてDocker Engineの変遷について解説します。 |
 | [eBPFによる革新的なオブザーバビリティ](ebpf.md) | 近年のLinuxシステムにおけるパフォーマンス解析とトラブルシューティングの領域で、最も強力なパラダイムシフトをもたらしているのが eBPF (Extended Berkeley Packet Fil... |
