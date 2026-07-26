@@ -42,11 +42,12 @@ Linux, macOS, WSL2, サーバ、コンテナ、どこでも基本同じコマン
 基本的なCLIコマンドを覚えておくと話が速い.
 
 
-## CLIは怖くない
+## 関連ページ
 
 ```{toctree}
 :maxdepth: 1
 
+why_cli
 device_debug
 package_manager
 ```
