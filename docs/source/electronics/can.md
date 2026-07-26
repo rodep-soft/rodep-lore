@@ -33,7 +33,7 @@
 
 ## 基本構成
 
-![alt text](image-2.png)
+![alt text](can-topology.png)
 
 2本の信号線を使い、CANトランシーバのCAN_H, CAN_Lを使ってノード同士が接続される.
 
@@ -53,7 +53,7 @@ CAN ControllerはMCUに内蔵されていることもある.
 MCP2515 moduleなどを使えば、SPIからCANに容易に変換することが可能である.
 
 
-![alt text](image-3.png)
+![alt text](can-twisted-pair.png)
 
 ノードを追加する時は、バスにぶら下がるように追加していく.
 

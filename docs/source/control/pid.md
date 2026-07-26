@@ -20,7 +20,7 @@ PID制御の基本について解説する.
 
 ## Theory
 
-![alt text](image.png)
+![alt text](pid-overview.png)
 
 [PID制御ブロック線図]
 
@@ -60,7 +60,7 @@ $$
 u(t) = K_p e(t)
 $$
 
-![alt text](image-2.png)
+![alt text](pid-pterm.png)
 
 
 図ではKpを増加させると誤差をより強く修正する様になることがわかる.
@@ -83,7 +83,7 @@ $$
 u(t) = K_I \int_0^t e(\tau)\,d\tau
 $$
 
-![alt text](image-3.png)
+![alt text](pid-iterm.png)
 
 図ではゲインを上げると定常偏差が減少していることがわかる. このため、主にI制御は定常偏差を小さくするために用いられる.
 
@@ -103,7 +103,7 @@ $$
 u(t) = K_d \frac{de(t)}{dt}
 $$
 
-![alt text](image-4.png)
+![alt text](pid-dterm.png)
 
 図ではKdを増加させるとオーバーシュートを低減させていることがわかる. 
 
