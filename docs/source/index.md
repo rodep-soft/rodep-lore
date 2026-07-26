@@ -20,3 +20,10 @@ control/intro
 electronics/intro
 ros2/intro
 ```
+
+```{toctree}
+:maxdepth: 2
+:caption: チームの知見・Tips集
+
+knowledge_base
+```
