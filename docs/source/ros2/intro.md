@@ -5,6 +5,7 @@ ROS2 周りのメモをまとめる場所.
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
 discovery_server
 dds_tuning
@@ -13,4 +14,5 @@ executor
 intra_process_comms
 realtime_architecture
 operation_and_debugging
+*
 ```

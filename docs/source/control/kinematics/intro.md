@@ -5,7 +5,9 @@
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
 omni
 mecanum
+*
 ```

@@ -4,6 +4,7 @@
 
 ```{toctree}
 :maxdepth: 2
+:glob:
 
 languages
 discord_bot
@@ -11,4 +12,5 @@ cpp
 python
 rust
 architecture
+*
 ```

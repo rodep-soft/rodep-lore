@@ -4,10 +4,12 @@
 
 ```{toctree}
 :maxdepth: 2
+:glob:
 
 can
 stm32_architecture
 can_fd_communication
 emi_and_signal_integrity
 sensor_algorithms
+*
 ```

@@ -86,7 +86,9 @@ CLIには、上記で触れた以外にも様々なメリットがあります�
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
 device_debug
 package_manager
+*
 ```
