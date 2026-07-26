@@ -17,8 +17,14 @@ linux/intro
 programming/intro
 tools/intro
 control/intro
+control_theory/intro
 electronics/intro
+embedded/intro
 ros2/intro
+robotics/intro
+infrastructure/intro
+network/intro
+multimedia/intro
 ```
 
 ```{toctree}

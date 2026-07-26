@@ -1,15 +1,22 @@
 # Electronics
 
-回路や電子工作、通信規格などのメモをまとめる場所.
+このセクションに含まれる記事の一覧です。
+
+| 記事 | 概要 |
+|---|---|
+| [CAN (Controller Area Network)](can.md) | 複数のマイコンやデバイスが1本の通信バスを共有するための通信規格. |
+| [CANおよびCAN FD通信の実践的運用](can_fd_communication.md) | 自動車から産業機器、さらにはロボティクスに至るまで、信頼性の高い通信基盤としてCAN（Controller Area Network）は広く普及しています。近年では、より高速で大容量なデータ伝送が可能... |
+| [ハードウェア設計におけるEMI対策と信号品質](emi_and_signal_integrity.md) | 電子制御システムが高度化し、動作周波数が向上するにつれて、電磁干渉（EMI）の抑制と信号品質（シグナルインテグリティ）の確保は、ハードウェア設計において避けて通れない重要な課題となっています。本稿では... |
+| [センサー信号処理と実践的アルゴリズム](sensor_algorithms.md) | 実世界の物理現象を捉え、マイコン上で意味のあるデータとして処理するためには、センサとの確実な通信から、高度な信号処理アルゴリズムの実装まで、幅広い知識が要求されます。本稿では、システムをより堅牢で正確... |
+| [ST-Linkとハードウェアデバッグにおける泥臭いトラブルシューティング](stlink_hardware_debug_failures.md) | 自作のSTM32搭載基板に初めて火を入れ、ST-Linkを繋いで書き込みを試みた瞬間、「Target not found」や「Can not connect to target」という非情なエラーに遭... |
+| [STM32アーキテクチャのポテンシャルを引き出す設計](stm32_architecture.md) | 最新のマイコン制御において、STM32などのモダンなアーキテクチャが持つ本来の性能を最大限に引き出すことは、高い信頼性とリアルタイム性を要求されるシステムにおいて極めて重要です。本稿では、高度なペリフ... |
+| [STM32におけるCANバスの堅牢な設計とHALの落とし穴](stm32_can_bus_robust_design.md) | ロボットシステムにおいて、複数モジュールの分散制御を行う際、CAN（Controller Area Network）バスは事実上の標準プロトコルとして採用されます。しかし、STM32のCANペリフェラ... |
+| [STM32におけるI2C通信とIMUノイズ対策の泥臭い実録](stm32_i2c_imu_noise_troubleshooting.md) | 組み込みシステム、特にモータやアクチュエータを多用するロボティクス環境において、STM32のI2C通信とIMU（慣性計測装置）のノイズ問題は開発者を最も悩ませるトラブルの一つです。本稿では、ハードウェ... |
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :glob:
+:hidden:
 
-can
-stm32_architecture
-can_fd_communication
-emi_and_signal_integrity
-sensor_algorithms
 *
 ```
