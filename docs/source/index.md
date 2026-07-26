@@ -4,9 +4,15 @@
 
 ```{toctree}
 :maxdepth: 2
-:caption: Contents:
+:caption: 初心者向けガイド
 
 overview
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: 分野別リファレンス
+
 linux/intro
 programming/intro
 tools/intro
