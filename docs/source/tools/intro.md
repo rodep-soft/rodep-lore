@@ -1,15 +1,15 @@
 # Tools
 
-このセクションに含まれる記事の一覧です。
+開発を効率化するツール群の実践的な使い方。Docker・Git・WSL2・CI/CDなど、日常的に触るものの「ちゃんとした使い方」をまとめている。
 
 | 記事 | 概要 |
 |---|---|
-| [CI/CD パイプライン：構築思想、ビルド高速化、泥臭いトラブルシューティング](cicd_workflows.md) | 開発における Continuous Integration (CI) および Continuous Deployment (CD) に関する知見、エラー解決手法、およびアーキテクチャの選定基準について... |
-| [DevContainerによるチーム開発環境の標準化](devcontainer_advanced.md) | 「私の環境では動く」というソフトウェア開発において長年繰り返されてきた問題に対し、VS CodeのDevContainer（Development Containers）は極めて効果的な解決策を提示し... |
-| [Docker Best Practices](docker_best_practices.md) | 開発環境の構築において、コンテナ技術はもはや欠かせない基盤となっている。しかし、その本質を理解せずに運用することは、パフォーマンスの低下やセキュリティリスクを招く原因となる。本稿では、Dockerを中... |
-| [Gitワークフローとチーム開発：泥臭いトラブルシューティングと運用思想](git_workflows_and_troubleshooting.md) | チーム開発におけるGitの運用ルール、Pull Request (PR) の捌き方、そしてありがちなコンフリクトやミスに対する実践的なトラブルシューティングを高密度にまとめた。 |
-| [Proxmox](proxmox.md) | ローカルマシンのリソース制限から解放され、より本番環境に近い複雑なインフラストラクチャを模倣するためには、専用の仮想化サーバーを構築することが次のステップとなります。オープンソースのプラットフォームで... |
-| [Wsl2 Best Practices](wsl2_best_practices.md) | Windows Subsystem for Linux 2 (WSL2) は、Windows環境における開発体験を劇的に変革しました。完全なLinuxカーネルの搭載により、高い互換性とパフォーマンスを... |
+| [CI/CD パイプライン](cicd_workflows.md) | GitHub ActionsによるCI構成、colconビルドのキャッシュ戦略、ROS2のDockerイメージの扱い方。 |
+| [DevContainer](devcontainer_advanced.md) | VS CodeのDevContainerでチーム開発環境を完全に標準化する方法。`.devcontainer/`の設計とGPU・USBデバイス対応。 |
+| [Docker ベストプラクティス](docker_best_practices.md) | マルチステージビルド、レイヤーキャッシュ、privileged不要なデバイスアクセス、ロボット開発特有の設定。 |
+| [Git ワークフロー](git_workflows_and_troubleshooting.md) | チーム開発でのブランチ戦略、PR運用、コンフリクト解消、よくやらかすミスとその対処法。 |
+| [Proxmox](proxmox.md) | ベアメタルに近い仮想化サーバの構築。LXCとKVMの使い分け、ネットワーク設計。 |
+| [WSL2](wsl2_best_practices.md) | WSL2でLinux開発環境を構築する際の設定最適化、USBデバイス連携、ファイルシステムのパフォーマンス。 |
 
 ```{toctree}
 :maxdepth: 1

@@ -1,10 +1,10 @@
-# Multimedia Overview
+# Multimedia
 
-このセクションに含まれる記事の一覧です。
+ロボットシステムでの映像処理・伝送の実装。カメラ画像の低遅延配信とROS2との統合。
 
 | 記事 | 概要 |
 |---|---|
-| [ROS 2における映像伝送：FFmpegとCompressed Image Transport](ffmpeg_vs_compressed_image_transport.md) | 遠隔操作（テレオペレーション）を行うロボットシステムにおいて、カメラ映像の低遅延かつ高品質な伝送は極めて重要です。ROS 2 Jazzy環境においては、標準的な`compressed_image_tr... |
+| [映像伝送：FFmpegとCompressed Image Transport](ffmpeg_vs_compressed_image_transport.md) | ROS2 Jazzy環境での低遅延映像伝送。`compressed_image_transport`とFFmpegエンコーダの比較、実機での遅延計測結果。 |
 
 ```{toctree}
 :maxdepth: 1

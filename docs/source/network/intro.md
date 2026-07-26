@@ -1,10 +1,10 @@
-# Network Overview
+# Network
 
-このセクションに含まれる記事の一覧です。
+ロボットシステムにおけるネットワーク設計。遠隔操作・分散システム・VPN構築の実践的な知見。
 
 | 記事 | 概要 |
 |---|---|
-| [Tailscaleを利用したVPN構築とROS Bridgeの統合](tailscale_vpn_and_ros_bridge.md) | 遠隔地からロボットを操作・監視する際、Tailscaleを利用したメッシュVPNの構築は非常に安全で設定が容易な手段です。TailscaleはWireGuardをベースにしており、複雑なポートフォワー... |
+| [Tailscale VPNとROS Bridge](tailscale_vpn_and_ros_bridge.md) | TailscaleでWireGuardベースのメッシュVPNを構築し、異なるネットワーク上のROS2ノード間を接続する方法。 |
 
 ```{toctree}
 :maxdepth: 1

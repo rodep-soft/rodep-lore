@@ -1,17 +1,17 @@
 # ROS2
 
-このセクションに含まれる記事の一覧です。
+ロボットソフトウェアのデファクトスタンダード。通信ミドルウェアのDDS、リアルタイム制御のExecutor、環境構築の罠まで、実際にハマって得た知見を中心にまとめている。
 
 | 記事 | 概要 |
 |---|---|
-| [Build Environments](build_environments.md) | ROS2の開発環境を構築する際のアプローチについて、Pixi、Source Build、Nix、Dockerそれぞれの利点と欠点について深い考察をまとめます。 |
-| [Dds And Zenoh](dds_and_zenoh.md) | ROS 2の最大の革新の一つは、通信ミドルウェアとしてDDS（Data Distribution Service）を採用した点にある。しかし、DDSの実装（ベンダ）によってその特性は大きく異なり、シス... |
-| [プロセス内通信（IPC）とComponent設計](intra_process_comms.md) | 大容量のセンサデータ（高解像度カメラ画像や3D LiDARの点群データなど）をノード間で頻繁に受け渡す場合、DDSを介したシリアライズとデシリアライズの処理がCPUリソースを著しく消費し、通信レイテン... |
-| [Microros](microros.md) | 本稿では、STM32などのマイクロコントローラ上で稼働するmicro-ROSの実装、および`ros2_control`を用いたアーム制御やハードウェア連携について、過去の検証とトラブルシューティングの... |
-| [ロボットシステム運用とデバッグの実践的作法](operation_and_debugging.md) | ROS 2を用いたロボットソフトウェア開発において、システムが複雑化するほど、標準ツールと定石（ベストプラクティス）の活用がプロジェクトの成否を分けます。 |
-| [Realtime And Executor](realtime_and_executor.md) | ROS 2におけるメッセージの受信やタイマー処理の実行は、Executorと呼ばれるコンポーネントによって管理されます。ロボットの応答性を高め、リアルタイム性を担保するためには、この実行制御モデルを深... |
-| [ROS 2 Controlにおける軌道制御とジョイント状態の管理](ros2_control_trajectory_and_joint_states.md) | ROS 2 Controlフレームワークを利用する際、ハードウェアインターフェースとコントローラマネージャ間の連携は非常に重要です。特に、`joint_state_broadcaster`とカスタムハ... |
-| [ROS2とRustの統合に関する課題](rust_integration_challenges.md) | ROS2のノードをRustで記述する（`ros2_rust` / `rclrs`）際のアーキテクチャ上の課題と、ビルドプロセスにおける問題点について整理します。 |
+| [開発環境構築の比較](build_environments.md) | Pixi、Source Build、Nix、Dockerそれぞれの設計思想と運用上の落とし穴。環境選定の判断基準を整理する。 |
+| [DDSとZenoh](dds_and_zenoh.md) | ROS 2の通信基盤であるDDSの実装差異（FastDDS・CycloneDDS）と、次世代の選択肢Zenohを比較。QoSチューニングの具体例も含む。 |
+| [プロセス内通信（IPC）とComponent設計](intra_process_comms.md) | 高帯域センサデータのノード間受け渡しでDDSのコピーコストを回避する方法。Composable Nodeの設計指針。 |
+| [micro-ROS](microros.md) | STM32上でのmicro-ROS実装と`ros2_control`によるハードウェア連携。マイコン-PC間のトランスポート選択やデバッグ手法。 |
+| [ロボットシステム運用とデバッグ](operation_and_debugging.md) | `ros2 topic`, `rqt`, `ros2 bag`の実践的な使い方と、ノードが死ぬ・通信が詰まる等のよくある障害対応。 |
+| [リアルタイム制御とExecutor](realtime_and_executor.md) | SingleThreaded/MultiThreadedExecutorの違いと、リアルタイムスレッドへの移行。CallbackGroupの設計方針。 |
+| [ros2_controlにおける軌道制御とジョイント状態管理](ros2_control_trajectory_and_joint_states.md) | `joint_state_broadcaster`とカスタムハードウェアインターフェース間の連携。よくある設定ミスと対処法。 |
+| [ROS2とRustの統合](rust_integration_challenges.md) | `ros2_rust` / `rclrs` でノードを書く際のアーキテクチャ上の制約とビルドシステムの問題点。 |
 
 ```{toctree}
 :maxdepth: 1
