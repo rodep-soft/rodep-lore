@@ -50,3 +50,10 @@ tools/git/clone
 
 control/kinematics/omni
 ```
+
+```{toctree}
+:maxdepth: 1
+:caption: Electronics:
+
+electronics/can
+```
