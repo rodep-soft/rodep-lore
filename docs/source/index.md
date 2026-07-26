@@ -48,6 +48,7 @@ tools/git/clone
 :maxdepth: 1
 :caption: Control:
 
+control/pid
 control/kinematics/omni
 ```
 
