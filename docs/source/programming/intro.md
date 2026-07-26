@@ -7,5 +7,8 @@
 
 languages
 discord_bot
-philosophy
+cpp
+python
+rust
+architecture
 ```
