@@ -30,7 +30,7 @@
 - **`nslookup` と `systemd-resolved` の挙動の違い**:
   - `nslookup` や `/etc/resolv.conf` は `systemd-resolved` 採用環境下ではローカルループバック（`127.0.0.53` 等の stub resolver）を指している。
   - 実際にマシンが参照しているアップストリーム DNS サーバーを正確に調べる場合は、`/etc/resolv.conf` を見るのではなく **`resolvctl status`** を実行するのが確実。
-- **Linux ネットワーキングと Firewall/NAT の真髄**:
+- **Linux ネットワーキングと Firewall/NAT の基礎**:
   - `iptables` や `nftables` はユーザー空間のフロントエンド（設定インターフェース）であり、Linux におけるパケットフィルタリングや NAT の本体は **`netfilter`** カーネルモジュールである。
 - **ネットワークデバッグ・スクリプト**:
   - `traceroute` の ICMP/TCP パケット送信には `sudo traceroute -T <target>` のように特権が必要。
