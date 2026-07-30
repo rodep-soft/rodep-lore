@@ -1,0 +1,63 @@
+# 出欠確認Bot 設定ファイル (config.yaml)
+
+# ボットの基本設定
+bot:
+  command_prefix: "!"
+
+# チャンネルID設定
+channels:
+  attendance_channel_id: 0  # .envのCHANNEL_IDが存在しない場合のデフォルト（.env優先）
+  late_channel_ids:
+    - 1238834537417412770  # 遅刻欠席連絡用チャンネルIDリスト
+
+# ロール設定
+roles:
+  assign_unanswered_role: false  # 未回答者へのロール付与を行うかどうか
+  unanswered_role_name: "未回答者"
+  target_role_name: "ROX-2026"
+
+# スケジュール設定 (JST 24時間表記 HH:MM)
+schedule:
+  send_check_time: "08:00"
+  remind_unanswered_time: "12:00"
+  aggregate_summary_time: "12:30"
+
+# メッセージ文面設定
+messages:
+  saturday_question: "会議に参加しますか？"
+  weekday_question: "今日の活動に参加しますか？"
+  note: "\n\n⚠️ **回答できない場合や「未回答」に残る場合は、このチャンネルで連絡してください！**"
+  remind_title: "🔔 **【リマインド】**"
+  remind_body: "今日の出欠がまだ未回答です！回答をお願いします！"
+
+# 定例会（ミーティング）案内配信設定 (複数登録可能)
+meetings:
+  - name: "制御班定例会"
+    enabled: true
+    day_of_week: "Friday"        # 定例会曜日（例: 金曜日）
+    announcement_time: "08:30"   # 定例会案内の投稿時刻（当日の朝）
+    start_time: "18:00"          # 定例会開始時刻
+    location: "研究棟"           # 開催場所（研究棟 または 部室 など）
+    channel_id: 0                # 0の場合はデフォルトチャンネル
+    role_mention: "@制御班"
+    agenda: "進捗確認"            # デフォルト議題
+    notice: ""                  # デフォルト連絡事項
+    reactions:
+      attend: "🫡"
+      absent: "🧐"
+
+  - name: "機械班定例会"
+    enabled: true
+    day_of_week: "Wednesday"
+    announcement_time: "08:30"
+    start_time: "18:00"
+    location: "部室"
+    channel_id: 0                # 班ごとの専用チャンネルIDを指定可能
+    role_mention: "@機械班"
+    agenda: "進捗確認"
+    notice: ""
+    reactions:
+      attend: "🫡"
+      absent: "🧐"
+
+
