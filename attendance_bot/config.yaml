@@ -46,18 +46,4 @@ meetings:
       attend: "🫡"
       absent: "🧐"
 
-  - name: "機械班定例会"
-    enabled: true
-    day_of_week: "Wednesday"
-    announcement_time: "08:30"
-    start_time: "18:00"
-    location: "部室"
-    channel_id: 0                # 班ごとの専用チャンネルIDを指定可能
-    role_mention: "@機械班"
-    agenda: "進捗確認"
-    notice: ""
-    reactions:
-      attend: "🫡"
-      absent: "🧐"
-
 
