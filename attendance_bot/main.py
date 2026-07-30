@@ -146,18 +146,19 @@ async def send_meeting_announcement(channel_id: int, meeting: dict, agenda: str 
         guild = getattr(channel, "guild", None)
         if guild and mention:
             target_role = None
-            clean_name = mention.lstrip("@").strip()
-            # 1. Look for exact name match
-            target_role = discord.utils.get(guild.roles, name=clean_name)
-            # 2. Look for case-insensitive match
+            clean_name = mention.replace("<@&", "").replace(">", "").lstrip("@").strip()
+            # 1. Look for role ID if numeric
+            if clean_name.isdigit():
+                target_role = guild.get_role(int(clean_name))
+            # 2. Look for exact name match
+            if not target_role:
+                target_role = discord.utils.get(guild.roles, name=clean_name)
+            # 3. Look for case-insensitive match
             if not target_role:
                 for r in guild.roles:
                     if r.name.lower() == clean_name.lower():
                         target_role = r
                         break
-            # 3. Look for role ID if mention is numeric string
-            if not target_role and clean_name.isdigit():
-                target_role = guild.get_role(int(clean_name))
 
             if target_role:
                 mention = target_role.mention
