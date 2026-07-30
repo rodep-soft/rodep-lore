@@ -40,7 +40,7 @@ meetings:
     location: "研究棟"           # 開催場所（研究棟 または 部室 など）
     channel_id: 0                # 0の場合はデフォルトチャンネル
     role_mention: "@制御班"
-    agenda: "進捗確認"            # デフォルト議題
+    agenda: ""                  # デフォルト議題 (基本なし)
     notice: ""                  # デフォルト連絡事項
     reactions:
       attend: "🫡"

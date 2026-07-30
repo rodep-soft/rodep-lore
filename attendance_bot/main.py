@@ -140,7 +140,7 @@ async def send_meeting_announcement(channel_id: int, meeting: dict, agenda: str 
 
         m_location = meeting.get("temp_location") or location or meeting.get("location", "研究棟")
         m_start_time = meeting.get("temp_start_time") or start_time or meeting.get("start_time", "18:00")
-        m_agenda = meeting.get("temp_agenda") if meeting.get("temp_agenda") is not None else (agenda if agenda is not None else meeting.get("agenda", "進捗確認"))
+        m_agenda = meeting.get("temp_agenda") if meeting.get("temp_agenda") is not None else (agenda if agenda is not None else meeting.get("agenda", ""))
         m_notice = meeting.get("temp_notice") if meeting.get("temp_notice") is not None else (notice if notice is not None else meeting.get("notice", ""))
 
         if hasattr(channel, "guild") and channel.guild and mention.startswith("@"):
