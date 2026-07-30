@@ -861,16 +861,27 @@ async def meeting_remove_subcommand(ctx, *, name: str):
 
 @meeting_group.command(name="send")
 @commands.has_permissions(manage_messages=True)
-async def meeting_send_subcommand(ctx, meeting_index: int = 1):
-    """今すぐ定例会の案内メッセージ（出欠スタンプ付き）を送信します"""
+async def meeting_send_subcommand(ctx, *, args: str = ""):
+    """今すぐ定例会の案内メッセージ（出欠スタンプ付き）を送信します (末尾に --here または -h で実行チャンネルへテスト送信)"""
+    is_here = "--here" in args or "-h" in args
+    clean_args = args.replace("--here", "").replace("-h", "").strip()
+
     cfg = load_config()
     meetings = cfg.get("meetings", [])
-    if not meetings or meeting_index < 1 or meeting_index > len(meetings):
-        await ctx.send(f"❌ 定例会番号が正しくありません。(1〜{len(meetings)}で指定してください)")
+    if not meetings:
+        await ctx.send("❌ 定例会が設定されていません。")
         return
-        
-    meeting = meetings[meeting_index - 1]
-    await send_meeting_announcement(ctx.channel.id, meeting)
+
+    meeting = get_target_meeting(meetings, ctx.channel.id, clean_args)
+    target_channel_ids = meeting.get("channel_ids") or ([meeting.get("channel_id")] if meeting.get("channel_id") else [])
+    target_channel_ids = [c for c in target_channel_ids if c]
+
+    if is_here or not target_channel_ids:
+        # Send to current channel for testing
+        await send_meeting_announcement(ctx.channel.id, meeting)
+    else:
+        for ch_id in target_channel_ids:
+            await send_meeting_announcement(ch_id, meeting)
 
 def get_target_meeting(meetings, channel_id, args_text=""):
     """Helper to select target meeting by channel_id, explicit index/name in args, or first meeting."""
