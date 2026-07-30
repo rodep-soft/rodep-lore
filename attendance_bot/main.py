@@ -97,8 +97,9 @@ async def check_meeting_schedule():
         if not meeting.get("enabled", True):
             continue
 
-        target_channel_id = meeting.get("channel_id") or default_ch_id
-        if not target_channel_id:
+        target_channel_ids = meeting.get("channel_ids") or ([meeting.get("channel_id")] if meeting.get("channel_id") else [default_ch_id])
+        target_channel_ids = [ch_id for ch_id in target_channel_ids if ch_id]
+        if not target_channel_ids:
             continue
 
         target_day = meeting.get("day_of_week")
@@ -117,7 +118,8 @@ async def check_meeting_schedule():
             key = (meeting.get("name"), "announcement", current_time_str)
             if key not in sent_meeting_reminders:
                 sent_meeting_reminders.add(key)
-                await send_meeting_announcement(target_channel_id, meeting)
+                for ch_id in target_channel_ids:
+                    await send_meeting_announcement(ch_id, meeting)
 
     # Clean up old keys from sent_meeting_reminders (keep only last 2 hours)
     cleanup_keys = [k for k in sent_meeting_reminders if (now - datetime.datetime.strptime(k[2], "%Y-%m-%d %H:%M").replace(tzinfo=JST)).total_seconds() > 7200]
@@ -1085,25 +1087,34 @@ async def meeting_channel_subcommand(ctx, *, args: str = ""):
     meeting = get_target_meeting(meetings, ctx.channel.id, args)
     
     # Check if a channel mention (#channel) or ID is provided
-    target_channel = None
+    target_channels = []
     if ctx.message.channel_mentions:
-        target_channel = ctx.message.channel_mentions[0]
+        target_channels = ctx.message.channel_mentions
     else:
         tokens = args.split()
         for tok in tokens:
             if tok.isdigit():
-                target_channel = ctx.guild.get_channel(int(tok))
-                if target_channel:
-                    break
+                ch = ctx.guild.get_channel(int(tok))
+                if ch:
+                    target_channels.append(ch)
 
-    if target_channel is None:
-        target_channel = ctx.channel
+    if not target_channels:
+        target_channels = [ctx.channel]
 
-    meeting["channel_id"] = target_channel.id
+    if len(target_channels) == 1:
+        meeting["channel_id"] = target_channels[0].id
+        if "channel_ids" in meeting:
+            del meeting["channel_ids"]
+        ch_text = f"<#{target_channels[0].id}>"
+    else:
+        meeting["channel_ids"] = [ch.id for ch in target_channels]
+        meeting["channel_id"] = target_channels[0].id
+        ch_text = ", ".join(f"<#{ch.id}>" for ch in target_channels)
+
     name = meeting.get("name", "定例会")
 
     if save_config(cfg):
-        await ctx.send(f"✅ 「**{name}**」の通知チャンネルを <#{target_channel.id}> に変更・保存しました！")
+        await ctx.send(f"✅ 「**{name}**」の通知チャンネルを {ch_text} に変更・保存しました！")
     else:
         await ctx.send("❌ 設定の保存に失敗しました。")
 
