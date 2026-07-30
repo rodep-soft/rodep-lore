@@ -1072,6 +1072,41 @@ async def meeting_time_subcommand(ctx, *, args: str):
         else:
             await ctx.send("❌ 設定の保存に失敗しました。")
 
+@meeting_group.command(name="channel")
+@commands.has_permissions(manage_messages=True)
+async def meeting_channel_subcommand(ctx, *, args: str = ""):
+    """定例会の通知チャンネルを変更します (例: !meeting channel #制御班チャンネル または コマンドを実行したチャンネルに設定)"""
+    cfg = load_config()
+    meetings = cfg.get("meetings", [])
+    if not meetings:
+        await ctx.send("❌ 定例会が設定されていません。")
+        return
+
+    meeting = get_target_meeting(meetings, ctx.channel.id, args)
+    
+    # Check if a channel mention (#channel) or ID is provided
+    target_channel = None
+    if ctx.message.channel_mentions:
+        target_channel = ctx.message.channel_mentions[0]
+    else:
+        tokens = args.split()
+        for tok in tokens:
+            if tok.isdigit():
+                target_channel = ctx.guild.get_channel(int(tok))
+                if target_channel:
+                    break
+
+    if target_channel is None:
+        target_channel = ctx.channel
+
+    meeting["channel_id"] = target_channel.id
+    name = meeting.get("name", "定例会")
+
+    if save_config(cfg):
+        await ctx.send(f"✅ 「**{name}**」の通知チャンネルを <#{target_channel.id}> に変更・保存しました！")
+    else:
+        await ctx.send("❌ 設定の保存に失敗しました。")
+
 @bot.command(name="status")
 async def status_command(ctx):
     """自動配信タスクの稼働状況を確認します"""
