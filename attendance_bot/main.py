@@ -758,12 +758,22 @@ async def meeting_group(ctx):
     msg = "📅 **登録済み定例会設定一覧**\n\n"
     for idx, m in enumerate(meetings, 1):
         status = "🟢 有効" if m.get("enabled", True) else "🔴 無効"
+        
+        # Format channel info
+        ch_ids = m.get("channel_ids") or ([m.get("channel_id")] if m.get("channel_id") else [])
+        ch_ids = [c for c in ch_ids if c]
+        if ch_ids:
+            ch_info = ", ".join(f"<#{c}>" for c in ch_ids)
+        else:
+            ch_info = "デフォルトチャンネル"
+
         msg += (
             f"**{m.get('name')}** ({status})\n"
+            f"　┣ 通知チャンネル: {ch_info}\n"
             f"　┣ 曜日・時刻: 毎週{m.get('day_of_week')} {m.get('start_time')} (案内投稿: {m.get('announcement_time')})\n"
             f"　┣ 開催場所: {m.get('location')}\n"
             f"　┣ 議題: {m.get('agenda') or 'なし'}\n"
-            f"　┗ 連絡事項: {m.get('notice') or 'なし'}\n"
+            f"　┗ 連絡事項: {m.get('notice') or 'なし'}\n\n"
         )
     await ctx.send(msg)
 
