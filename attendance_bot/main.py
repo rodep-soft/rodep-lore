@@ -163,6 +163,10 @@ async def send_meeting_announcement(channel_id: int, meeting: dict, agenda: str 
             lines.append("＜連絡＞")
             lines.append(m_notice.strip())
 
+        minutes_url = meeting.get("minutes_url", "")
+        if minutes_url:
+            lines.append(f"📝 議題・議事録: {minutes_url}")
+
         lines.append(f"参加する人は{attend_emoji} ，参加しない人は{absent_emoji} のリアクションお願いします．")
 
         announcement_text = "\n".join(lines)

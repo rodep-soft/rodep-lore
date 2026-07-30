@@ -42,6 +42,7 @@ meetings:
     role_mention: "@制御班"
     agenda: ""                  # デフォルト議題 (基本なし)
     notice: ""                  # デフォルト連絡事項
+    minutes_url: "https://github.com/rodep-soft/minutes" # 議事録リポジトリURL (空でない場合は案内末尾に自動掲載)
     reactions:
       attend: "🫡"
       absent: "🧐"
