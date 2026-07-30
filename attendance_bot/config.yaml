@@ -38,7 +38,7 @@ meetings:
     announcement_time: "08:30"   # 定例会案内の投稿時刻（当日の朝）
     start_time: "18:00"          # 定例会開始時刻
     location: "研究棟"           # 開催場所（研究棟 または 部室 など）
-    channel_id: 0                # 0の場合はデフォルトチャンネル
+    channel_id: 1493823343206596648  # 制御班定例会チャンネルID
     role_mention: "@制御班"
     agenda: ""                  # デフォルト議題 (基本なし)
     notice: ""                  # デフォルト連絡事項
