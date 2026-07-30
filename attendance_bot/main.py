@@ -143,10 +143,24 @@ async def send_meeting_announcement(channel_id: int, meeting: dict, agenda: str 
         m_agenda = meeting.get("temp_agenda") if meeting.get("temp_agenda") is not None else (agenda if agenda is not None else meeting.get("agenda", ""))
         m_notice = meeting.get("temp_notice") if meeting.get("temp_notice") is not None else (notice if notice is not None else meeting.get("notice", ""))
 
-        if hasattr(channel, "guild") and channel.guild and mention.startswith("@"):
-            role = discord.utils.get(channel.guild.roles, name=mention[1:])
-            if role:
-                mention = role.mention
+        guild = getattr(channel, "guild", None)
+        if guild and mention:
+            target_role = None
+            clean_name = mention.lstrip("@").strip()
+            # 1. Look for exact name match
+            target_role = discord.utils.get(guild.roles, name=clean_name)
+            # 2. Look for case-insensitive match
+            if not target_role:
+                for r in guild.roles:
+                    if r.name.lower() == clean_name.lower():
+                        target_role = r
+                        break
+            # 3. Look for role ID if mention is numeric string
+            if not target_role and clean_name.isdigit():
+                target_role = guild.get_role(int(clean_name))
+
+            if target_role:
+                mention = target_role.mention
 
         today_str = datetime.datetime.now(JST).strftime("%m/%d")
         lines = [
