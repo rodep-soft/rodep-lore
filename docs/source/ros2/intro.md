@@ -5,6 +5,7 @@
 | 記事 | 概要 |
 |---|---|
 | [開発環境構築の比較](build_environments.md) | Pixi、Source Build、Nix、Dockerそれぞれの設計思想と運用上の落とし穴。環境選定の判断基準を整理する。 |
+| [Docker & ROS2 開発ガイド](docker.md) | ROS2におけるDocker/Docker Composeの基礎、DDSネットワーク設定、デバイスマウント、GUI表示、GPU連携の解説。 |
 | [DDSとZenoh](dds_and_zenoh.md) | ROS 2の通信基盤であるDDSの実装差異（FastDDS・CycloneDDS）と、次世代の選択肢Zenohを比較。QoSチューニングの具体例も含む。 |
 | [プロセス内通信（IPC）とComponent設計](intra_process_comms.md) | 高帯域センサデータのノード間受け渡しでDDSのコピーコストを回避する方法。Composable Nodeの設計指針。 |
 | [micro-ROS](microros.md) | STM32上でのmicro-ROS実装と`ros2_control`によるハードウェア連携。マイコン-PC間のトランスポート選択やデバッグ手法。 |
