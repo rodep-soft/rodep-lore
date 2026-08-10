@@ -56,9 +56,16 @@ async def on_message(message: discord.Message):
             if message.channel.id in source_ids:
                 target_channel = bot.get_channel(int(target_id)) or await bot.fetch_channel(int(target_id))
                 if target_channel:
-                    # 添付画像ファイルチェック
+                    # 添付メディア（画像・動画）ファイルチェック
                     for attachment in message.attachments:
-                        if attachment.content_type and attachment.content_type.startswith("image/"):
+                        is_media = False
+                        if attachment.content_type:
+                            is_media = attachment.content_type.startswith(("image/", "video/"))
+                        else:
+                            ext = os.path.splitext(attachment.filename)[1].lower()
+                            is_media = ext in [".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".mov", ".avi", ".webm", ".mkv"]
+
+                        if is_media:
                             file = await attachment.to_file()
                             await target_channel.send(file=file)
 
