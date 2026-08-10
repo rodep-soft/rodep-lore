@@ -133,7 +133,32 @@ services:
       - run
       - --no-sync
       - main.py
-      
+
+  # 汎用・便利機能用bot (画像自動転送など)
+  utils_bot:
+    profiles:
+      - setup
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    env_file:
+      - ./utils_bot/.env
+
+    tty: true
+    privileged: true
+    network_mode: host
+
+    working_dir: /app/utils_bot
+    volumes:
+      - ./:/app
+
+    restart: always
+    command:
+      - uv
+      - run
+      - --no-sync
+      - bot.py
 
   # simは常駐で動かす
   # tailscale経由でアクセス可能

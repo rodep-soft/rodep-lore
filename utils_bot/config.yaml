@@ -1,0 +1,11 @@
+# 画像転送機能設定
+image_forwarding:
+  enabled: true
+  rules:
+    - source_channel_ids:
+        - 1505868999706021888
+        - 1505863313014259884
+        - 1505869112574873600
+      target_channel_id: 1503355477717680251
+
+
