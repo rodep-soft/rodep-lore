@@ -1,10 +1,7 @@
-.PHONY: build up-sphinx up-pio up-sim
+.PHONY: build up-pio up-sim setup-clock prune-network test-up
 
 build:
 	docker compose build
-
-up-sphinx:
-	docker compose up -d sphinx
 
 up-pio:
 	docker compose up -d pio

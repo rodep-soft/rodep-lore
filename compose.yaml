@@ -1,38 +1,4 @@
 services:
-  sphinx:
-    # これは必要なときだけ手動ビルド
-    profiles:
-      - tools
-    build:
-      context: .
-      # Dockerfileは共通化
-      dockerfile: Dockerfile
-    working_dir: /app
-
-    # bind mount
-    volumes:
-      - ./:/app
-
-    # firewalld/iptables等に注意
-    # hostでListenしてるか見る
-    # $ sudo ss -plunt | grep 8080
-    #
-    ports:
-      - "8080:8080"
-
-    # この書き方が安定かも
-    command:
-      - uv
-      - run
-      - --no-sync
-      - sphinx-autobuild
-      - docs/source
-      - docs/build/html
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8080"
-
   # arduino制御
   # docker compose --profile setup logs
   pio:
@@ -80,13 +46,8 @@ services:
       - /dev:/dev
       - /run/user/1000/pulse/native:/run/user/1000/pulse/native
 
-
-
     env_file:
       - ./door_bot/.env
-  
-        #devices:
-        #- "/dev/doorduino:/dev/doorduino"
 
     environment:
       # コンテナ内のアプリにソケットの場所を教える
@@ -103,7 +64,6 @@ services:
       - run
       - --no-sync
       - door_bot/bot.py
-
 
   # 大会用などの出席管理bot
   attendance_bot:
@@ -125,7 +85,6 @@ services:
       - ./:/app
       - /dev:/dev
       - /run/user/1000/pulse/native:/run/user/1000/pulse/native
-      
 
     restart: always
     command:
@@ -172,7 +131,6 @@ services:
       dockerfile: Dockerfile
       network: host
     working_dir: /app
-
 
     volumes:
       - ./:/app
