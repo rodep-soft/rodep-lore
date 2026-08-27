@@ -1,12 +1,35 @@
+# Virtual environment
 .venv/
 **/.venv/
 
-docs/build/
-
-**/.pio/
+# Environment files
 **/.env
+**/.env.*
+!**/.env.example
 
+# Python cache & build
 __pycache__/
-**/*.bak
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+
+# PlatformIO & Embedded
+.pio/
+**/.pio/
+
+# Temporary / Backup files
+*.bak
+**/*.bak
+*.swp
+*~
+.DS_Store
+
+# Data / History exports
+*.json.bak
+discord_history.json
+

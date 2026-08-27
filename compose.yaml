@@ -1,179 +1,98 @@
 services:
-  # arduino制御
-  # docker compose --profile setup logs
+  # --- 共通データベース (PostgreSQL) ---
+  db:
+    image: postgres:15-alpine
+    restart: always
+    network_mode: host
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-attendance_bot}
+      POSTGRES_USER: ${POSTGRES_USER:-bot_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bot_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-bot_user} -d $${POSTGRES_DB:-attendance_bot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- 音声合成エンジン (VOICEVOX) ---
+  voicebox:
+    image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
+    restart: unless-stopped
+    ports:
+      - "50021:50021"
+
+  # --- ドア解錠・音声通知 Bot ---
+  door_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    restart: always
+    working_dir: /app/bots/door_bot
+    volumes:
+      - ./:/app
+      - /dev:/dev
+      - /run/user/1000/pulse/native:/run/user/1000/pulse/native
+    environment:
+      PULSE_SERVER: unix:/run/user/1000/pulse/native
+      PULSE_COOKIE: /run/user/1000/pulse/cookie
+    privileged: true
+    network_mode: host
+    command: ["python", "bot.py"]
+    depends_on:
+      - voicebox
+
+  # --- 出席管理 Bot ---
+  attendance_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    restart: always
+    working_dir: /app/bots/attendance_bot
+    volumes:
+      - ./:/app
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bot_user}:${POSTGRES_PASSWORD:-bot_password}@localhost:5432/${POSTGRES_DB:-attendance_bot}
+    network_mode: host
+    command: ["python", "main.py"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- 汎用・便利機能用 Bot (画像自動転送など) ---
+  utils_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    restart: always
+    working_dir: /app/bots/utils_bot
+    volumes:
+      - ./:/app
+    network_mode: host
+    command: ["python", "bot.py"]
+
+  # --- Arduino / マイコン ファームウェア書き込みツール (手動実行用) ---
   pio:
     profiles:
-      - setup
+      - pio
     build:
       context: .
       dockerfile: Dockerfile
       network: host
     working_dir: /app
-
     volumes:
       - ./:/app
       - /dev/bus/usb:/dev/bus/usb
       - pio_cache:/root/.platformio
       - uv_cache:/root/.cache/uv
-
     tty: true
     privileged: true
     network_mode: host
-    command:
-      - uv
-      - run
-      - --no-sync
-      - pio
-      - run
-      - -d
-      - door_bot
-      - -t
-      - upload
-
-  # discord botのメインのコンテナ
-  door_bot:
-    profiles:
-      - setup
-    build:
-      context: .
-      dockerfile: Dockerfile
-      network: host
-
-    working_dir: /app
-
-    volumes:
-      - ./:/app
-      - /dev:/dev
-      - /run/user/1000/pulse/native:/run/user/1000/pulse/native
-
-    env_file:
-      - ./door_bot/.env
-
-    environment:
-      # コンテナ内のアプリにソケットの場所を教える
-      - PULSE_SERVER=unix:/run/user/1000/pulse/native
-      - PULSE_COOKIE=/run/user/1000/pulse/cookie # 必要に応じて
-    
-    tty: true
-    privileged: true
-    network_mode: host
-    # systemdに管理を任せる
-    restart: always
-    command:
-      - uv
-      - run
-      - --no-sync
-      - door_bot/bot.py
-
-  # 大会用などの出席管理bot
-  attendance_bot:
-    profiles:
-      - setup
-    build:
-      context: .
-      dockerfile: Dockerfile
-      network: host
-    env_file:
-      - ./attendance_bot/.env
-
-    tty: true
-    privileged: true
-    network_mode: host
-
-    working_dir: /app/attendance_bot
-    volumes:
-      - ./:/app
-      - /dev:/dev
-      - /run/user/1000/pulse/native:/run/user/1000/pulse/native
-
-    restart: always
-    command:
-      - uv
-      - run
-      - --no-sync
-      - main.py
-
-  # 汎用・便利機能用bot (画像自動転送など)
-  utils_bot:
-    profiles:
-      - setup
-    build:
-      context: .
-      dockerfile: Dockerfile
-      network: host
-    env_file:
-      - ./utils_bot/.env
-
-    tty: true
-    privileged: true
-    network_mode: host
-
-    working_dir: /app/utils_bot
-    volumes:
-      - ./:/app
-
-    restart: always
-    command:
-      - uv
-      - run
-      - --no-sync
-      - bot.py
-
-  # simは常駐で動かす
-  # tailscale経由でアクセス可能
-  # cloudflare tunnel越しにも公開している
-  # /etc/systemd/system/cloudflared.service
-  simulator:
-    profiles:
-      - voicebox
-    build:
-      context: .
-      dockerfile: Dockerfile
-      network: host
-    working_dir: /app
-
-    volumes:
-      - ./:/app
-
-    #network_mode: host
-    ports:
-      - "8501:8501"
-
-    # メンテナンス時以外は自動復旧
-    restart: unless-stopped
-
-    command:
-      - uv
-      - run
-      - --no-sync
-      - streamlit
-      - run
-      - scripts/control/simple_pid_simulator.py
-      - --server.address
-      - "0.0.0.0"
-
-  voicebox:
-    profiles:
-      - "setup"
-
-    image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
-    ports:
-      - "50021:50021"
-
-    restart: unless-stopped
-
-  db:
-    profiles:
-      - setup
-    image: postgres:15-alpine
-    restart: always
-    network_mode: host
-    environment:
-      - POSTGRES_DB=attendance_bot
-      - POSTGRES_USER=bot_user
-      - POSTGRES_PASSWORD=bot_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    command: ["pio", "run", "-d", "firmware/door_lock", "-t", "upload"]
 
 volumes:
   pio_cache:
