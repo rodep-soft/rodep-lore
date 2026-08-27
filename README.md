@@ -30,10 +30,11 @@ $ make logs
 ### 主なコマンド
 
 ```bash
-$ make up        # 全サービス起動 (DB・VOICEVOX・Bot群)
-$ make down      # 全停止
-$ make flash     # マイコンへの書き込み単体
-$ make fmt       # コード自動整形 (Ruff)
-$ make lint      # 静的解析 (Ruff)
-$ make help      # コマンド一覧
+$ make up             # 全サービス起動 (DB・VOICEVOX・Bot群)
+$ make down           # 全停止
+$ make flash          # マイコンへの書き込み単体
+$ make setup-service  # OS起動時の自動デプロイ(systemd)を登録
+$ make fmt            # コード自動整形 (Ruff)
+$ make lint           # 静的解析 (Ruff)
+$ make help           # コマンド一覧
 ```

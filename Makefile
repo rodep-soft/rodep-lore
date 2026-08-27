@@ -25,6 +25,13 @@ flash: ## マイコンにファームウェアを書き込み (PlatformIO)
 
 up-pio: flash ## flashのエイリアス
 
+setup-service: ## systemdサービス(OS起動時自動実行)を登録・有効化
+	@echo "Installing systemd service for current directory..."
+	@sed "s|CURRENT_WORKING_DIR|$(CURDIR)|g" rodep-lore.service | sudo tee /etc/systemd/system/rodep-lore.service > /dev/null
+	@sudo systemctl daemon-reload
+	@sudo systemctl enable rodep-lore.service
+	@echo "✅ rodep-lore.service registered and enabled!"
+
 setup-clock: ## 時計スクリプトのセットアップ
 	bash scripts/clock/setup_clock.sh
 

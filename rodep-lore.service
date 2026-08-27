@@ -1,0 +1,16 @@
+[Unit]
+Description=RODEP LORE Services & Auto-Flash
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=CURRENT_WORKING_DIR
+ExecStart=/usr/bin/make deploy
+ExecStop=/usr/bin/make down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
