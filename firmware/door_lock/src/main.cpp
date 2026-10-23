@@ -28,6 +28,6 @@ void loop() {
     Serial.println(distance);
   }
 
-  delay(1000);
+  delay(200);
 }
 

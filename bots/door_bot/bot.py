@@ -176,25 +176,25 @@ async def say(ctx, *, text: str):
     """部室のスピーカーで喋ります (ランダムキャラ)"""
     character = random.choice(SPEECH_PATTERNS)
     pattern = random.choice(character["patterns"])
-    speak_zunda(text, speaker_id=pattern["id"])
+    await asyncio.to_thread(speak_zunda, text, speaker_id=pattern["id"])
 
 
 @bot.command()
 async def zunda(ctx, *, text: str):
     """ずんだもんの声で喋ります"""
-    speak_zunda(text, speaker_id=3)
+    await asyncio.to_thread(speak_zunda, text, speaker_id=3)
 
 
 @bot.command()
 async def metan(ctx, *, text: str):
     """四国めたんの声で喋ります"""
-    speak_zunda(text, speaker_id=2)
+    await asyncio.to_thread(speak_zunda, text, speaker_id=2)
 
 
 @bot.command()
 async def tsumugi(ctx, *, text: str):
     """春日部つむぎの声で喋ります"""
-    speak_zunda(text, speaker_id=8)
+    await asyncio.to_thread(speak_zunda, text, speaker_id=8)
 
 
 @bot.command()
@@ -371,9 +371,6 @@ async def serial_task():
             print(f"Character: {character['name']} (ID:{voice_id})")
             print(f"Text: {voice_text}")
 
-            # 喋らせる
-            speak_zunda(voice_text, speaker_id=voice_id)
-
             # Discord通知（クールダウンあり）
             # ここでは今日最初の一回だけ通知する仕様
             # was_below_threshold がチェックされているので、開きっぱなしでの連投はない
@@ -393,6 +390,9 @@ async def serial_task():
                     print(
                         f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Notification sent to {success_count} channels!"
                     )
+
+            # 音声合成・再生はDiscord通知を遅延させないようバックグラウンドスレッドで実行
+            asyncio.create_task(asyncio.to_thread(speak_zunda, voice_text, speaker_id=voice_id))
 
         was_below_threshold = False
     else:
